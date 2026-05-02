@@ -131,7 +131,10 @@ const YouTubePlayer: React.FC = () => {
         : undefined;
 
     return (
-        <div style={{ padding: 16, maxWidth: 800, margin: "0 auto" }}>
+        <div
+            style={{ padding: 16, maxWidth: 800, margin: "0 auto" }}
+            className="absolute -translate-y-full"
+        >
             <h2>YouTube Player</h2>
 
             {/* ── Player ───────────────────────────────────────────────────── */}
