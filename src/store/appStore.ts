@@ -25,6 +25,8 @@ interface AudioCaptureStore {
     toggleYtMode: () => void;
     currentTrack: Track | null;
     setCurrentTrack: (track: Track | null) => void;
+    searchResults: Track[];
+    setSearchResults: (tracks: Track[]) => void;
     playing: boolean;
     togglePlaying: () => void;
     setPlaying: (playing: boolean) => void;
@@ -53,6 +55,8 @@ export const useAppStore = create<AudioCaptureStore>()(
             toggleYtMode: () => set((state) => ({ ytMode: !state.ytMode })),
             currentTrack: null,
             setCurrentTrack: (track: Track | null) => set({ currentTrack: track, playing: false }),
+            searchResults: [],
+            setSearchResults: (tracks: Track[]) => set({ searchResults: tracks }),
             playing: false,
             togglePlaying: () => set((state) => ({ playing: !state.playing })),
             setPlaying: (playing: boolean) => set({ playing }),

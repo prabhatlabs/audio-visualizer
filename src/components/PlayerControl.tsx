@@ -1,27 +1,32 @@
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
+import { formatTime } from "@/lib/time";
 import { useAppStore } from "@/store/appStore";
 import { usePlaybackStore } from "@/store/playbackStore";
-import { Pause, Play, SkipBack, SkipForward } from "lucide-react";
+import { Music, Pause, Play, SkipBack, SkipForward } from "lucide-react";
 
 const PlayerControl: React.FC = () => {
     const { playing, togglePlaying, currentTrack } = useAppStore();
     const { currentTime } = usePlaybackStore();
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-6">
             <div className="flex justify-center items-center">
-                <div className="aspect-square bg-foreground/20 h-40 w-40">
+                <div className="aspect-square bg-foreground/20 h-50 w-50 relative">
+                    <Music className="size-25 text-muted-foreground absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
                     <img
                         src={currentTrack?.thumbnail || ""}
                         alt={currentTrack?.title || "No track"}
                     />
                 </div>
             </div>
-            <div className="text-center">
-                <h3 className="font-medium truncate">
+            <div className="text-center space-y-2">
+                <h3 className="font-medium truncate text-xl px-3">
                     {currentTrack?.title || "No track"}
                 </h3>
+                <h5 className="font-medium truncate text-sm px-3 text-muted-foreground">
+                    {currentTrack?.author || "No Artist"}
+                </h5>
             </div>
             <div className="flex justify-center items-center gap-4">
                 <Button variant="outline" size="icon">
@@ -36,7 +41,7 @@ const PlayerControl: React.FC = () => {
             </div>
             <div className="space-y-2">
                 <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>{currentTime}</span>
+                    <span>{formatTime(currentTime)}</span>
                     <span>{currentTrack?.timestamp}</span>
                 </div>
                 <Slider value={[0]} max={100} />

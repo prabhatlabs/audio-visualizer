@@ -14,19 +14,13 @@ import PlayerControl from "./PlayerControl";
 import { Button } from "./ui/button";
 import YouTubeSearch from "./YouTubeSearch";
 import YouTubePlayer from "./YouTubePlayer";
+import { formatTime } from "@/lib/time";
 
 const CurrentTrackInfo = () => {
     const { currentTrack, ytMode } = useAppStore();
     const { currentTime } = usePlaybackStore();
 
     if (!ytMode || !currentTrack) return null;
-
-    const formatTime = (seconds: number) => {
-        const mins = Math.floor(seconds / 60);
-        const secs = Math.floor(seconds % 60);
-        return `${mins}:${secs.toString().padStart(2, "0")}`;
-    };
-
     return (
         <div className="flex items-center gap-3 max-w-60 px-4 py-1 bg-background/50 backdrop-blur-xs rounded-full border border-border">
             <Music className="w-3 h-3 text-primary animate-pulse shrink-0" />
@@ -70,15 +64,24 @@ const IslandModal: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         <Dialog>
             <DialogTrigger asChild>{children}</DialogTrigger>
             <DialogContent className="w-[calc(100%-32px)] md:w-full md:max-w-md h-[80vh] flex flex-col overflow-hidden">
-                <Tabs defaultValue="player" className="w-full flex-1 flex flex-col min-h-0">
+                <Tabs
+                    defaultValue="player"
+                    className="w-full flex-1 flex flex-col min-h-0 gap-0"
+                >
                     <TabsList className="grid w-full grid-cols-2 shrink-0">
                         <TabsTrigger value="player">Player</TabsTrigger>
                         <TabsTrigger value="search">Search</TabsTrigger>
                     </TabsList>
-                    <TabsContent value="player" className="flex-1 overflow-y-auto">
+                    <TabsContent
+                        value="player"
+                        className="flex-1 overflow-y-auto pt-4"
+                    >
                         <PlayerControl />
                     </TabsContent>
-                    <TabsContent value="search" className="flex-1 overflow-hidden flex flex-col pt-4">
+                    <TabsContent
+                        value="search"
+                        className="flex-1 overflow-hidden flex flex-col pt-4"
+                    >
                         <YouTubeSearch />
                     </TabsContent>
                 </Tabs>

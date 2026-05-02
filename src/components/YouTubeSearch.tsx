@@ -14,9 +14,8 @@ import { Input } from "./ui/input";
 
 const YouTubeSearch: React.FC = () => {
     const [query, setQuery] = useState("");
-    const [results, setResults] = useState<Track[]>([]);
     const [loading, setLoading] = useState(false);
-    const { setCurrentTrack } = useAppStore();
+    const { setCurrentTrack, searchResults, setSearchResults } = useAppStore();
 
     const handleSearch = async () => {
         if (!query) return;
@@ -28,7 +27,7 @@ const YouTubeSearch: React.FC = () => {
             );
             const data = await response.json();
 
-            setResults(data.items);
+            setSearchResults(data.items);
         } catch (error) {
             console.error("Search error:", error);
         } finally {
@@ -58,8 +57,8 @@ const YouTubeSearch: React.FC = () => {
                     )}
                 </Button>
             </div>
-            <div className="flex-1 overflow-y-auto space-y-2 min-h-0 pb-4 pr-1">
-                {results.map((track) => (
+            <div className="flex-1 overflow-y-auto space-y-2 min-h-0 pb-4 pr-2">
+                {searchResults.map((track) => (
                     <div
                         key={track.videoId}
                         className="cursor-pointer hover:bg-accent transition-colors bg-card flex items-center gap-4 rounded-md border w-full"
@@ -95,7 +94,7 @@ const YouTubeSearch: React.FC = () => {
                         </Button>
                     </div>
                 ))}
-                {results.length === 0 && !loading && (
+                {searchResults.length === 0 && !loading && (
                     <div className="text-center py-8 text-muted-foreground italic text-sm">
                         Search results will appear here...
                     </div>
