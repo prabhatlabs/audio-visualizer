@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from "react";
+import { colorObj, useColorStore } from "../../store/colorStore";
 
 interface RippleProps {
   audioBands?: React.MutableRefObject<Float32Array>;
@@ -12,15 +13,6 @@ interface RippleProps {
   kickCooldown?: number;
 }
 
-const colors = [
-  { main: "#e63946", glow: "#e63946aa" },
-  { main: "#2a9d8f", glow: "#2a9d8faa" },
-  { main: "#e9c46a", glow: "#e9c46aaa" },
-  { main: "#8ab17d", glow: "#8ab17daa" },
-  { main: "#f4a261", glow: "#f4a261aa" },
-  { main: "#9b5de5", glow: "#9b5de5aa" },
-];
-
 const Ripple: React.FC<RippleProps> = ({
   audioBands,
   enableRipple = true,
@@ -32,6 +24,8 @@ const Ripple: React.FC<RippleProps> = ({
   kickThreshold = 0.6,
   kickCooldown = 80,
 }) => {
+  const theme = useColorStore((state) => state.theme);
+  const colors = colorObj[theme];
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>(0);
   const ripplesRef = useRef<{ radius: number; color: string; alpha: number; maxRadius: number }[]>([]);
