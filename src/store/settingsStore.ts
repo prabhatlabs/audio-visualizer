@@ -25,6 +25,9 @@ interface VisualizerSettings {
         imageSrc: string;
         centerText: string;
     };
+    youtube: {
+        volume: number;
+    };
 }
 
 const defaultSettings: VisualizerSettings = {
@@ -50,6 +53,9 @@ const defaultSettings: VisualizerSettings = {
     imageBoom: {
         imageSrc: "/image.png",
         centerText: "prabhatlabs",
+    },
+    youtube: {
+        volume: 0.8,
     },
 };
 

@@ -9,6 +9,20 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  server: {
+    proxy: {
+      '/api/search': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+      },
+      '/api/lyrica': {
+        target: 'https://test-0k.onrender.com',
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path.replace(/^\/api\/lyrica/, ''),
+      },
+    },
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

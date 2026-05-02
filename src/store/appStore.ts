@@ -1,7 +1,15 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-type VisualizerType = "InfinitySquares" | "CubeViz" | "Ripple" | "ImageBoom";
+export type VisualizerType = "InfinitySquares" | "CubeViz" | "Ripple" | "ImageBoom";
+
+export interface Track {
+    videoId: string;
+    title: string;
+    thumbnail: string;
+    timestamp: string;
+    author: string;
+}
 
 interface AudioCaptureStore {
     visualizersWithLabel: {
@@ -11,6 +19,15 @@ interface AudioCaptureStore {
     visualizersNameObj: Record<VisualizerType, string>;
     currVisualizer: VisualizerType;
     setCurrVisualizer: (visualizer: VisualizerType) => void;
+    
+    // YT Mode
+    ytMode: boolean;
+    toggleYtMode: () => void;
+    currentTrack: Track | null;
+    setCurrentTrack: (track: Track | null) => void;
+    playing: boolean;
+    togglePlaying: () => void;
+    setPlaying: (playing: boolean) => void;
 }
 
 const visualizers = {
@@ -31,9 +48,22 @@ export const useAppStore = create<AudioCaptureStore>()(
             currVisualizer: "CubeViz",
             setCurrVisualizer: (visualizer: VisualizerType) =>
                 set({ currVisualizer: visualizer }),
+            
+            ytMode: false,
+            toggleYtMode: () => set((state) => ({ ytMode: !state.ytMode })),
+            currentTrack: null,
+            setCurrentTrack: (track: Track | null) => set({ currentTrack: track, playing: false }),
+            playing: false,
+            togglePlaying: () => set((state) => ({ playing: !state.playing })),
+            setPlaying: (playing: boolean) => set({ playing }),
         }),
         {
             name: "visualizer-choice",
+            partialize: (state) => ({
+                currVisualizer: state.currVisualizer,
+                ytMode: state.ytMode,
+                currentTrack: state.currentTrack,
+            }),
         }
     )
 );

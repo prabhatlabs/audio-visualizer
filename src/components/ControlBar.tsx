@@ -16,11 +16,13 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { useAppStore } from "@/store/appStore";
 import { useAudioCaptureStore } from "@/store/audioCapture";
+import { usePlaybackStore } from "@/store/playbackStore";
 import { colorObj, useColorStore, type ColorThemeType } from "@/store/colorStore";
 import { useSettingsStore } from "@/store/settingsStore";
-import { MonitorPlay, Palette, Settings2, Upload, RotateCcw } from "lucide-react";
+import { MonitorPlay, Palette, Settings2, Upload, RotateCcw, Laptop, Youtube, Music, Radio, Play, Pause } from "lucide-react";
 import CaptureAudioBtn from "./CaptureAudioBtn";
 import { Button } from "./ui/button";
+import YouTubeSearch from "./YouTubeSearch";
 
 const VisualizerSwitcher = () => {
   const {
@@ -194,6 +196,25 @@ const VisualizerSettings = () => {
               </div>
             )}
 
+            <Separator />
+
+            <div className="grid gap-4">
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <Label>Player Volume</Label>
+                  <span className="text-xs text-muted-foreground">{((settings.youtube?.volume ?? 0.8) * 100).toFixed(0)}%</span>
+                </div>
+                <Slider
+                  min={0}
+                  max={1}
+                  step={0.05}
+                  value={[settings.youtube?.volume ?? 0.8]}
+                  onValueChange={([v]) => updateSetting("youtube", "volume", v)}
+                />
+              </div>
+            </div>
+
+            <Separator />
             {currVisualizer === "Ripple" && (
               <div className="grid gap-4">
                 <div className="flex items-center justify-between">
@@ -303,19 +324,102 @@ const VisualizerSettings = () => {
   );
 };
 
+const ModeToggle = () => {
+  const { ytMode, toggleYtMode } = useAppStore();
+  const { cleanup } = useAudioCaptureStore();
+
+  const handleToggle = () => {
+    cleanup();
+    toggleYtMode();
+  };
+
+  return (
+    <Button variant="outline" onClick={handleToggle} className="gap-2">
+      {ytMode ? <Youtube className="w-4 h-4 text-red-500" /> : <Laptop className="w-4 h-4" />}
+      {ytMode ? "YT Mode" : "Capture Mode"}
+    </Button>
+  );
+};
+
+const CurrentTrackInfo = () => {
+  const { currentTrack, ytMode } = useAppStore();
+  const { currentTime } = usePlaybackStore();
+  
+  if (!ytMode || !currentTrack) return null;
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  return (
+    <div className="flex items-center gap-2 max-w-56 px-3 py-1 bg-accent/50 rounded-full border border-border">
+      <Music className="w-3 h-3 text-primary animate-pulse shrink-0" />
+      <div className="flex flex-col truncate">
+        <span className="text-xs font-medium truncate">{currentTrack.title}</span>
+        <span className="text-[10px] text-muted-foreground">{formatTime(currentTime)} / {currentTrack.timestamp}</span>
+      </div>
+    </div>
+  );
+};
+
+const PlaybackToggle = () => {
+  const { playing, togglePlaying, currentTrack } = useAppStore();
+  if (!currentTrack) return null;
+
+  return (
+    <Button 
+      variant="outline" 
+      size="icon" 
+      onClick={togglePlaying}
+      className="rounded-full w-8 h-8"
+    >
+      {playing ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 fill-current" />}
+    </Button>
+  );
+};
+
 const ControlBar = () => {
-  const { isCapturing } = useAudioCaptureStore();
+  const { isCapturing, startCapture } = useAudioCaptureStore();
+  const { ytMode } = useAppStore();
+
   return (
     <div className="fixed z-50 bottom-0 w-full p-4 backdrop-blur-xs">
       <div className="flex justify-between gap-4 items-center">
         <div className="flex items-center gap-2">
+          <ModeToggle />
           <VisualizerSwitcher />
           <ColorThemeSwitcher />
           <VisualizerSettings />
-          <CaptureAudioBtn />
-          <span className="text-sm italic text-muted-foreground">
-            {isCapturing ? "Capturing Audio" : "Not Capturing Audio"}
-          </span>
+          
+          <Separator orientation="vertical" className="h-8 mx-1" />
+          
+          {!ytMode ? (
+            <>
+              <CaptureAudioBtn />
+              <span className="text-sm italic text-muted-foreground">
+                {isCapturing ? "Capturing Audio" : "Not Capturing Audio"}
+              </span>
+            </>
+          ) : (
+            <>
+              <YouTubeSearch />
+              <PlaybackToggle />
+              <CurrentTrackInfo />
+              {!isCapturing && (
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => startCapture()}
+                  className="gap-2 text-yellow-500 hover:text-yellow-600 hover:bg-yellow-500/10"
+                >
+                  <Radio className="w-4 h-4" />
+                  Connect Visualizer
+                </Button>
+              )}
+            </>
+          )}
         </div>
         <div className="flex items-center gap-2">
           {/* <ThemeToggleBtn /> */}
