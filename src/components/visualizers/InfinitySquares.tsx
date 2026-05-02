@@ -1,23 +1,18 @@
 import React, { useEffect, useRef } from "react";
+import { useSettingsStore } from "../../store/settingsStore";
 
 interface InfinitySquaresProps {
-  squareCount?: number;
-  baseSize?: number;
-  speed?: number;
   audioBands?: React.MutableRefObject<Float32Array>;
 }
 
 const InfinitySquares: React.FC<InfinitySquaresProps> = ({
-  squareCount = 30,
-  baseSize = 500,
-  speed = 3,
   audioBands,
 }) => {
+  const { squareCount, baseSize, speed } = useSettingsStore((state) => state.settings.infinitySquares);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>(0);
   const zOffsetRef = useRef(0);
-  const baseSpeedRef = useRef(speed);
-  const currentSpeedRef = useRef(speed);
+  const speedRef = useRef(speed);
   const colorOffsetRef = useRef(0);
   const targetColorOffsetRef = useRef(0);
   const centerOffsetRef = useRef({ x: 0, y: 0 });
@@ -25,6 +20,10 @@ const InfinitySquares: React.FC<InfinitySquaresProps> = ({
   const lastKickTimeRef = useRef(0);
   const prevBassLevelRef = useRef(0);
   const kickCooldown = 80;
+
+  useEffect(() => {
+    speedRef.current = speed;
+  }, [speed]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -48,6 +47,7 @@ const InfinitySquares: React.FC<InfinitySquaresProps> = ({
 
     const squareSpacing = baseSize / 2.5;
     const totalTunnelLength = squareCount * squareSpacing;
+    let currentSpeed = speedRef.current;
 
     const animate = () => {
       ctx.fillStyle = "#0a0a0f";
@@ -62,8 +62,8 @@ const InfinitySquares: React.FC<InfinitySquaresProps> = ({
         bassLevel = (audioBands.current[0] + audioBands.current[1] + audioBands.current[2]) / 3;
       }
 
-      const targetSpeed = baseSpeedRef.current * (1 + bassLevel * 5);
-      currentSpeedRef.current += (targetSpeed - currentSpeedRef.current) * 0.1;
+      const targetSpeed = speedRef.current * (1 + bassLevel * 5);
+      currentSpeed += (targetSpeed - currentSpeed) * 0.1;
 
       const now = Date.now();
       const delta = bassLevel - prevBassLevelRef.current;
@@ -89,7 +89,7 @@ const InfinitySquares: React.FC<InfinitySquaresProps> = ({
 
       colorOffsetRef.current += (targetColorOffsetRef.current - colorOffsetRef.current) * 0.08;
 
-      zOffsetRef.current += currentSpeedRef.current;
+      zOffsetRef.current += currentSpeed;
 
       for (let i = 0; i < squareCount; i++) {
         const spacing = squareSpacing;
@@ -137,7 +137,7 @@ const InfinitySquares: React.FC<InfinitySquaresProps> = ({
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [squareCount, baseSize, speed, audioBands]);
+  }, [squareCount, baseSize, audioBands]);
 
   return <canvas ref={canvasRef} className="w-full h-full block" />;
 };

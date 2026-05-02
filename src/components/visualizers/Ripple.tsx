@@ -1,31 +1,37 @@
 import React, { useEffect, useRef } from "react";
 import { colorObj, useColorStore } from "../../store/colorStore";
+import { useSettingsStore } from "../../store/settingsStore";
 
 interface RippleProps {
   audioBands?: React.MutableRefObject<Float32Array>;
-  enableRipple?: boolean;
-  enableStrobe?: boolean;
-  enableShake?: boolean;
-  shakeIntensity?: number;
-  strobeIntensity?: number;
-  rippleSpeed?: number;
-  kickThreshold?: number;
-  kickCooldown?: number;
 }
 
 const Ripple: React.FC<RippleProps> = ({
   audioBands,
-  enableRipple = true,
-  enableStrobe = true,
-  enableShake = true,
-  shakeIntensity = 10,
-  strobeIntensity = 0.6,
-  rippleSpeed = 1.5,
-  kickThreshold = 0.6,
-  kickCooldown = 80,
 }) => {
+  const {
+    enableRipple,
+    enableStrobe,
+    enableShake,
+    shakeIntensity,
+    strobeIntensity,
+    rippleSpeed,
+  } = useSettingsStore((state) => state.settings.ripple);
+  const kickThreshold = 0.6;
+  const kickCooldown = 80;
   const theme = useColorStore((state) => state.theme);
   const colors = colorObj[theme];
+
+  const shakeIntensityRef = useRef(shakeIntensity);
+  const strobeIntensityRef = useRef(strobeIntensity);
+  const rippleSpeedRef = useRef(rippleSpeed);
+
+  useEffect(() => {
+    shakeIntensityRef.current = shakeIntensity;
+    strobeIntensityRef.current = strobeIntensity;
+    rippleSpeedRef.current = rippleSpeed;
+  }, [shakeIntensity, strobeIntensity, rippleSpeed]);
+
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>(0);
   const ripplesRef = useRef<{ radius: number; color: string; alpha: number; maxRadius: number }[]>([]);
@@ -98,15 +104,15 @@ const Ripple: React.FC<RippleProps> = ({
       let shakeX = 0;
       let shakeY = 0;
       if (enableShake) {
-        shakeX = (Math.random() - 0.5) * kickLevel * shakeIntensity;
-        shakeY = (Math.random() - 0.5) * kickLevel * shakeIntensity;
+        shakeX = (Math.random() - 0.5) * kickLevel * shakeIntensityRef.current;
+        shakeY = (Math.random() - 0.5) * kickLevel * shakeIntensityRef.current;
       }
 
       const centerX = width / 2 + shakeX;
       const centerY = height / 2 + shakeY;
 
       ripplesRef.current = ripplesRef.current.filter((ripple) => {
-        ripple.radius += 15 * rippleSpeed + kickLevel * 20 * rippleSpeed;
+        ripple.radius += 15 * rippleSpeedRef.current + kickLevel * 20 * rippleSpeedRef.current;
         ripple.alpha = Math.max(0, 1 - (ripple.radius / ripple.maxRadius) * 1.2);
         ripple.alpha *= 0.98;
 
@@ -134,7 +140,7 @@ const Ripple: React.FC<RippleProps> = ({
       if (enableStrobe && subBassLevel > 0.5) {
         const strobeColor = colors[currentColorIndexRef.current].main;
         ctx.fillStyle = strobeColor;
-        ctx.globalAlpha = subBassLevel * strobeIntensity;
+        ctx.globalAlpha = subBassLevel * strobeIntensityRef.current;
         ctx.fillRect(0, 0, width, height);
         ctx.globalAlpha = 1;
       }
@@ -150,7 +156,7 @@ const Ripple: React.FC<RippleProps> = ({
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [audioBands, enableRipple, enableStrobe, enableShake, shakeIntensity, strobeIntensity, rippleSpeed, kickThreshold, kickCooldown]);
+  }, [audioBands, enableRipple, enableStrobe, enableShake, theme]);
 
   return <canvas ref={canvasRef} className="w-full h-full block" />;
 };

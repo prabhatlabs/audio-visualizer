@@ -1,14 +1,14 @@
 import React, { useEffect, useRef } from "react";
+import { useSettingsStore } from "../../store/settingsStore";
 
-interface ImageGlitchProps {
+interface ImageBoomProps {
   audioBands?: React.MutableRefObject<Float32Array>;
-  imageSrc?: string;
 }
 
-const ImageGlitch: React.FC<ImageGlitchProps> = ({
+const ImageBoom: React.FC<ImageBoomProps> = ({
   audioBands,
-  imageSrc = "/image.png",
 }) => {
+  const { imageSrc } = useSettingsStore((state) => state.settings.imageBoom);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>(0);
   const lastKickTimeRef = useRef(0);
@@ -203,4 +203,4 @@ const ImageGlitch: React.FC<ImageGlitchProps> = ({
   );
 };
 
-export default ImageGlitch;
+export default ImageBoom;

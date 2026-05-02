@@ -26,8 +26,6 @@ function VisualizerPage() {
                 {currVisualizer === "CubeViz" && (
                     <CubeViz
                         audioBands={bandsRef}
-                        rotationSpeed={40}
-                        shakeIntensity={6}
                     />
                 )}
                 {currVisualizer === "Ripple" && (

@@ -1,22 +1,16 @@
 import gsap from "gsap";
 import React, { useEffect, useRef } from "react";
 import { colorObj, useColorStore } from "../../store/colorStore";
+import { useSettingsStore } from "../../store/settingsStore";
 
 interface CubeVizProps {
     audioBands?: React.MutableRefObject<Float32Array>;
-    rotationSpeed?: number;
-    enableRotate?: boolean;
-    enableShake?: boolean;
-    shakeIntensity?: number;
 }
 
 const CubeViz: React.FC<CubeVizProps> = ({
     audioBands,
-    rotationSpeed = 20,
-    enableRotate = true,
-    enableShake = true,
-    shakeIntensity = 10,
 }) => {
+    const { rotationSpeed, enableRotate, enableShake, shakeIntensity } = useSettingsStore((state) => state.settings.cubeViz);
     const theme = useColorStore((state) => state.theme);
     const cubeWrapperRef = useRef<HTMLDivElement>(null);
     const cubeRef = useRef<HTMLDivElement>(null);
@@ -30,25 +24,30 @@ const CubeViz: React.FC<CubeVizProps> = ({
     const colors = colorObj[theme];
 
     useEffect(() => {
-        if (cubeRef.current && enableRotate) {
-            gsap.to(cubeRef.current, {
-                rotationY: 360,
-                rotationX: 360,
-                duration: rotationSpeed,
-                repeat: -1,
-                ease: "none",
-            });
-        } else if (cubeRef.current) {
-            gsap.to(cubeRef.current, {
-                rotationY: 0,
-                rotationX: 0,
-                duration: 0.5,
-                ease: "power2.out",
-            });
-        }
+        const ctx = gsap.context(() => {
+            if (enableRotate) {
+                gsap.to(cubeRef.current, {
+                    rotationY: 360,
+                    rotationX: 360,
+                    duration: rotationSpeed,
+                    repeat: -1,
+                    ease: "none",
+                });
+            } else {
+                gsap.to(cubeRef.current, {
+                    rotationY: 0,
+                    rotationX: 0,
+                    duration: 0.5,
+                    ease: "power2.out",
+                });
+            }
+        }, cubeRef);
 
-        const updateFaces = () => {
-            const z = translateZStateRef.current.z;
+        return () => ctx.revert();
+    }, [rotationSpeed, enableRotate]);
+
+    useEffect(() => {
+        const updateFaces = (z: number) => {
             faceRefs.current.forEach((face, index) => {
                 if (face) {
                     const transforms = [
@@ -106,13 +105,9 @@ const CubeViz: React.FC<CubeVizProps> = ({
             }
 
             const targetTranslateZ = 112 + bassLevel * 80;
-
-            gsap.to(translateZStateRef.current, {
-                z: targetTranslateZ,
-                duration: 0.15,
-                ease: "power2.out",
-                onUpdate: updateFaces,
-            });
+            // Simple lerp for smooth transition without creating tweens every frame
+            translateZStateRef.current.z += (targetTranslateZ - translateZStateRef.current.z) * 0.15;
+            updateFaces(translateZStateRef.current.z);
 
             if (enableShake && cubeWrapperRef.current) {
                 const shakeX =
@@ -120,6 +115,8 @@ const CubeViz: React.FC<CubeVizProps> = ({
                 const shakeY =
                     (Math.random() - 0.5) * bassLevel * shakeIntensity;
                 cubeWrapperRef.current.style.transform = `translate(${shakeX}px, ${shakeY}px)`;
+            } else if (cubeWrapperRef.current) {
+                cubeWrapperRef.current.style.transform = "none";
             }
 
             const now = Date.now();
@@ -148,7 +145,7 @@ const CubeViz: React.FC<CubeVizProps> = ({
                 cancelAnimationFrame(animationRef.current);
             }
         };
-    }, [audioBands, rotationSpeed, enableRotate, enableShake, shakeIntensity]);
+    }, [audioBands, enableShake, shakeIntensity, theme]);
 
     return (
         <div className="w-full h-dvh flex items-center justify-center overflow-hidden">
