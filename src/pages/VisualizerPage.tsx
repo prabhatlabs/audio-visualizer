@@ -1,7 +1,7 @@
 import { useAudioAnalysis } from "@/providers/AudioAnalysisProvider";
 import { useAppStore } from "@/store/appStore";
 import { motion } from "framer-motion";
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 
 const CubeViz = lazy(() => import("@/components/visualizers/CubeViz"));
 const ImageBoom = lazy(() => import("@/components/visualizers/ImageBoom"));
@@ -13,9 +13,15 @@ const Ripple = lazy(() => import("@/components/visualizers/Ripple"));
 function VisualizerPage() {
     const { bandsRef } = useAudioAnalysis();
     const { currVisualizer } = useAppStore();
-    const BAND_COUNT = bandsRef?.current.length;
+    const [bandCount, setBandCount] = useState(0);
 
-    if (!bandsRef || !BAND_COUNT) return null;
+    useEffect(() => {
+        if (bandsRef?.current) {
+            setBandCount(bandsRef.current.length);
+        }
+    }, [bandsRef]);
+
+    if (!bandsRef || !bandCount) return null;
 
     return (
         <motion.div className="w-dvw h-full">
@@ -24,9 +30,7 @@ function VisualizerPage() {
                     <InfinitySquares audioBands={bandsRef} />
                 )}
                 {currVisualizer === "CubeViz" && (
-                    <CubeViz
-                        audioBands={bandsRef}
-                    />
+                    <CubeViz audioBands={bandsRef} />
                 )}
                 {currVisualizer === "Ripple" && (
                     <Ripple audioBands={bandsRef} />

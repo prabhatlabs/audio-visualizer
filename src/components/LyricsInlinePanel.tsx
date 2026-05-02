@@ -3,7 +3,8 @@ import { useLyricsStore } from '@/store/lyricsStore'
 import { usePlaybackStore } from '@/store/playbackStore'
 
 const LyricsInlinePanel: React.FC = () => {
-  const { lyrics, isLoading } = useLyricsStore()
+  const { lyrics } = useLyricsStore();
+
   const { currentTime } = usePlaybackStore()
 
   if (!lyrics) {

@@ -3,7 +3,6 @@ import {
     Clock,
     Loader2,
     Music,
-    Plus,
     PlusCircle,
     Search,
     User,
@@ -15,7 +14,7 @@ import { Input } from "./ui/input";
 const YouTubeSearch: React.FC = () => {
     const [query, setQuery] = useState("");
     const [loading, setLoading] = useState(false);
-    const { setCurrentTrack, searchResults, setSearchResults } = useAppStore();
+    const { setCurrentTrack, searchResults, setSearchResults, addToQueue } = useAppStore();
 
     const handleSearch = async () => {
         if (!query) return;
@@ -89,7 +88,11 @@ const YouTubeSearch: React.FC = () => {
                                 </span>
                             </div>
                         </div>
-                        <Button variant="ghost" className="pr-3">
+                        <Button 
+                            variant="ghost" 
+                            className="pr-3" 
+                            onClick={(e) => { e.stopPropagation(); addToQueue(track); }}
+                        >
                             <PlusCircle className="w-4 h-4 text-muted-foreground shrink-0" />
                         </Button>
                     </div>

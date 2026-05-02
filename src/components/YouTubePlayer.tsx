@@ -1,5 +1,5 @@
 // biome-ignore lint/style/useImportType:
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback, useEffect } from "react";
 import ReactPlayer from "react-player";
 import { useAppStore } from "@/store/appStore";
 import { usePlaybackStore } from "@/store/playbackStore";
@@ -18,7 +18,21 @@ const YouTubePlayer: React.FC = () => {
         setCurrentTrack,
     } = useAppStore();
 
-    const { setCurrentTime } = usePlaybackStore();
+    const { setCurrentTime, seeking, setSeeking, localSeek } =
+        usePlaybackStore();
+
+    // Sync seeking commit from store to player
+    // We detect when 'seeking' changes from true to false to trigger the seek action.
+    const prevSeekingRef = useRef(seeking);
+    useEffect(() => {
+        if (prevSeekingRef.current && !seeking && playerRef.current) {
+            // Commit happened
+            playerRef.current.currentTime =
+                playerRef.current.duration * (localSeek / 100);
+        }
+
+        prevSeekingRef.current = seeking;
+    }, [seeking, localSeek]);
 
     const volume = useSettingsStore((s) => s.settings.youtube.volume);
     const updateSetting = useSettingsStore((s) => s.updateSetting);
@@ -30,7 +44,6 @@ const YouTubePlayer: React.FC = () => {
     const [played, setPlayed] = useState(0);
     const [loaded, setLoaded] = useState(0);
     const [duration, setDuration] = useState(0);
-    const [seeking, setSeeking] = useState(false);
 
     // ── Ref ───────────────────────────────────────────────────────────────────
     const setPlayerRef = useCallback((player: HTMLVideoElement) => {

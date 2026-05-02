@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
+import { Progress } from "@/components/ui/progress";
 import { formatTime } from "@/lib/time";
 import { useAppStore } from "@/store/appStore";
 import { usePlaybackStore } from "@/store/playbackStore";
@@ -7,7 +8,26 @@ import { Music, Pause, Play, SkipBack, SkipForward } from "lucide-react";
 
 const PlayerControl: React.FC = () => {
     const { playing, togglePlaying, currentTrack } = useAppStore();
-    const { currentTime } = usePlaybackStore();
+    const { currentTime, seeking, setSeeking, localSeek, setLocalSeek } =
+        usePlaybackStore();
+
+    const durationSeconds = currentTrack?.timestamp
+        ? currentTrack.timestamp
+              .split(":")
+              .reduce((acc, time) => 60 * acc + +time, 0)
+        : 0;
+
+    const progress =
+        durationSeconds > 0 ? (currentTime / durationSeconds) * 100 : 0;
+
+    const handleSeekChange = (value: number[]) => {
+        setSeeking(true);
+        setLocalSeek(value[0]);
+    };
+
+    const handleSeekCommit = () => {
+        setSeeking(false);
+    };
 
     return (
         <div className="space-y-6">
@@ -42,9 +62,23 @@ const PlayerControl: React.FC = () => {
             <div className="space-y-2">
                 <div className="flex justify-between text-xs text-muted-foreground">
                     <span>{formatTime(currentTime)}</span>
-                    <span>{currentTrack?.timestamp}</span>
+                    <span>{currentTrack?.timestamp || "0:00"}</span>
                 </div>
-                <Slider value={[0]} max={100} />
+                <div className="relative h-2">
+                    <Slider
+                        value={[seeking ? localSeek : progress]}
+                        max={100}
+                        step={0.1}
+                        onValueChange={handleSeekChange}
+                        onValueCommit={handleSeekCommit}
+                        className="absolute w-full z-10"
+                    />
+                    <Progress
+                        value={progress}
+                        bufferValue={progress + 15}
+                        className="absolute h-2 w-full z-0"
+                    />
+                </div>
             </div>
         </div>
     );

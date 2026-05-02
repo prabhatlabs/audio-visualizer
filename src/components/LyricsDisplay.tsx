@@ -1,7 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 import { useLyricsStore } from '@/store/lyricsStore';
 import { usePlaybackStore } from '@/store/playbackStore';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from "framer-motion";
+
 import { useAppStore } from '@/store/appStore';
 
 const LyricsDisplay: React.FC = () => {
