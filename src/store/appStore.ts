@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 type VisualizerType = "InfinitySquares" | "CubeViz" | "Ripple" | "ImageBoom";
 
@@ -19,13 +20,20 @@ const visualizers = {
     InfinitySquares: "Infinity Squares",
 };
 
-export const useAppStore = create<AudioCaptureStore>((set) => ({
-    visualizersNameObj: visualizers,
-    visualizersWithLabel: Object.entries(visualizers).map(([type, label]) => ({
-        label: label,
-        type: type as VisualizerType,
-    })),
-    currVisualizer: "CubeViz",
-    setCurrVisualizer: (visualizer: VisualizerType) =>
-        set({ currVisualizer: visualizer }),
-}));
+export const useAppStore = create<AudioCaptureStore>()(
+    persist(
+        (set) => ({
+            visualizersNameObj: visualizers,
+            visualizersWithLabel: Object.entries(visualizers).map(([type, label]) => ({
+                label: label,
+                type: type as VisualizerType,
+            })),
+            currVisualizer: "CubeViz",
+            setCurrVisualizer: (visualizer: VisualizerType) =>
+                set({ currVisualizer: visualizer }),
+        }),
+        {
+            name: "visualizer-choice",
+        }
+    )
+);

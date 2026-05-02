@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 export const colorObj = {
     Minimalist: [
@@ -42,7 +43,14 @@ interface ColorState {
     setTheme: (theme: ColorThemeType) => void;
 }
 
-export const useColorStore = create<ColorState>((set) => ({
-    theme: "Minimalist",
-    setTheme: (theme) => set({ theme }),
-}));
+export const useColorStore = create<ColorState>()(
+    persist(
+        (set) => ({
+            theme: "Minimalist",
+            setTheme: (theme) => set({ theme }),
+        }),
+        {
+            name: "visualizer-theme",
+        }
+    )
+);

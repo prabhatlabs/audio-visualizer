@@ -13,11 +13,12 @@ import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
 import { useAppStore } from "@/store/appStore";
 import { useAudioCaptureStore } from "@/store/audioCapture";
 import { colorObj, useColorStore, type ColorThemeType } from "@/store/colorStore";
 import { useSettingsStore } from "@/store/settingsStore";
-import { MonitorPlay, Palette, Settings2, Upload } from "lucide-react";
+import { MonitorPlay, Palette, Settings2, Upload, RotateCcw } from "lucide-react";
 import CaptureAudioBtn from "./CaptureAudioBtn";
 import { Button } from "./ui/button";
 
@@ -80,7 +81,7 @@ const ColorThemeSwitcher = () => {
 
 const VisualizerSettings = () => {
   const { currVisualizer } = useAppStore();
-  const { settings, updateSetting } = useSettingsStore();
+  const { settings, updateSetting, resetSettings } = useSettingsStore();
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -93,11 +94,14 @@ const VisualizerSettings = () => {
     }
   };
 
+  const currentSettingsKey = currVisualizer.charAt(0).toLowerCase() + currVisualizer.slice(1) as any;
+
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="outline" size="icon">
+        <Button variant="outline" className="gap-2">
           <Settings2 className="w-4 h-4" />
+          Settings
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-80">
@@ -111,174 +115,188 @@ const VisualizerSettings = () => {
             </p>
           </div>
 
-          {currVisualizer === "CubeViz" && (
-            <div className="grid gap-4">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="rotate">Enable Rotation</Label>
-                <Switch
-                  id="rotate"
-                  checked={settings.cubeViz.enableRotate}
-                  onCheckedChange={(v) => updateSetting("cubeViz", "enableRotate", v)}
-                />
-              </div>
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <Label>Rotation Speed</Label>
-                  <span className="text-xs text-muted-foreground">{settings.cubeViz.rotationSpeed}s</span>
+          <div className="grid gap-4 py-2">
+            {currVisualizer === "CubeViz" && (
+              <div className="grid gap-4">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="rotate">Enable Rotation</Label>
+                  <Switch
+                    id="rotate"
+                    checked={settings.cubeViz.enableRotate}
+                    onCheckedChange={(v) => updateSetting("cubeViz", "enableRotate", v)}
+                  />
                 </div>
-                <Slider
-                  min={5}
-                  max={60}
-                  step={1}
-                  value={[settings.cubeViz.rotationSpeed]}
-                  onValueChange={([v]) => updateSetting("cubeViz", "rotationSpeed", v)}
-                />
-              </div>
-              <div className="flex items-center justify-between">
-                <Label htmlFor="shake">Enable Shake</Label>
-                <Switch
-                  id="shake"
-                  checked={settings.cubeViz.enableShake}
-                  onCheckedChange={(v) => updateSetting("cubeViz", "enableShake", v)}
-                />
-              </div>
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <Label>Shake Intensity</Label>
-                  <span className="text-xs text-muted-foreground">{settings.cubeViz.shakeIntensity}</span>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <Label>Rotation Speed</Label>
+                    <span className="text-xs text-muted-foreground">{settings.cubeViz.rotationSpeed}s</span>
+                  </div>
+                  <Slider
+                    min={5}
+                    max={60}
+                    step={1}
+                    value={[settings.cubeViz.rotationSpeed]}
+                    onValueChange={([v]) => updateSetting("cubeViz", "rotationSpeed", v)}
+                  />
                 </div>
-                <Slider
-                  min={0}
-                  max={50}
-                  step={1}
-                  value={[settings.cubeViz.shakeIntensity]}
-                  onValueChange={([v]) => updateSetting("cubeViz", "shakeIntensity", v)}
-                />
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="shake">Enable Shake</Label>
+                  <Switch
+                    id="shake"
+                    checked={settings.cubeViz.enableShake}
+                    onCheckedChange={(v) => updateSetting("cubeViz", "enableShake", v)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <Label>Shake Intensity</Label>
+                    <span className="text-xs text-muted-foreground">{settings.cubeViz.shakeIntensity}</span>
+                  </div>
+                  <Slider
+                    min={0}
+                    max={50}
+                    step={1}
+                    value={[settings.cubeViz.shakeIntensity]}
+                    onValueChange={([v]) => updateSetting("cubeViz", "shakeIntensity", v)}
+                  />
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {currVisualizer === "ImageBoom" && (
-            <div className="grid gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="image-upload" className="flex items-center gap-2">
-                  <Upload className="w-4 h-4" />
-                  Custom Image
-                </Label>
-                <Input
-                  id="image-upload"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="cursor-pointer"
-                />
-                <p className="text-xs text-muted-foreground italic">
-                  Best with PNGs or transparent backgrounds.
-                </p>
+            {currVisualizer === "ImageBoom" && (
+              <div className="grid gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="image-upload" className="flex items-center gap-2">
+                    <Upload className="w-4 h-4" />
+                    Custom Image
+                  </Label>
+                  <Input
+                    id="image-upload"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="cursor-pointer"
+                  />
+                  <p className="text-xs text-muted-foreground italic">
+                    Best with PNGs or transparent backgrounds.
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="center-text">Center Text</Label>
+                  <Input
+                    id="center-text"
+                    type="text"
+                    value={settings.imageBoom.centerText}
+                    onChange={(e) => updateSetting("imageBoom", "centerText", e.target.value)}
+                    placeholder="Enter custom text..."
+                  />
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="center-text">Center Text</Label>
-                <Input
-                  id="center-text"
-                  type="text"
-                  value={settings.imageBoom.centerText}
-                  onChange={(e) => updateSetting("imageBoom", "centerText", e.target.value)}
-                  placeholder="Enter custom text..."
-                />
-              </div>
-            </div>
-          )}
+            )}
 
-          {currVisualizer === "Ripple" && (
-            <div className="grid gap-4">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="r-ripple">Enable Ripple</Label>
-                <Switch
-                  id="r-ripple"
-                  checked={settings.ripple.enableRipple}
-                  onCheckedChange={(v) => updateSetting("ripple", "enableRipple", v)}
-                />
-              </div>
-              <div className="flex items-center justify-between">
-                <Label htmlFor="r-strobe">Enable Strobe</Label>
-                <Switch
-                  id="r-strobe"
-                  checked={settings.ripple.enableStrobe}
-                  onCheckedChange={(v) => updateSetting("ripple", "enableStrobe", v)}
-                />
-              </div>
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <Label>Ripple Speed</Label>
-                  <span className="text-xs text-muted-foreground">{settings.ripple.rippleSpeed.toFixed(1)}</span>
+            {currVisualizer === "Ripple" && (
+              <div className="grid gap-4">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="r-ripple">Enable Ripple</Label>
+                  <Switch
+                    id="r-ripple"
+                    checked={settings.ripple.enableRipple}
+                    onCheckedChange={(v) => updateSetting("ripple", "enableRipple", v)}
+                  />
                 </div>
-                <Slider
-                  min={0.1}
-                  max={5}
-                  step={0.1}
-                  value={[settings.ripple.rippleSpeed]}
-                  onValueChange={([v]) => updateSetting("ripple", "rippleSpeed", v)}
-                />
-              </div>
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <Label>Strobe Intensity</Label>
-                  <span className="text-xs text-muted-foreground">{settings.ripple.strobeIntensity.toFixed(1)}</span>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="r-strobe">Enable Strobe</Label>
+                  <Switch
+                    id="r-strobe"
+                    checked={settings.ripple.enableStrobe}
+                    onCheckedChange={(v) => updateSetting("ripple", "enableStrobe", v)}
+                  />
                 </div>
-                <Slider
-                  min={0}
-                  max={1}
-                  step={0.1}
-                  value={[settings.ripple.strobeIntensity]}
-                  onValueChange={([v]) => updateSetting("ripple", "strobeIntensity", v)}
-                />
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <Label>Ripple Speed</Label>
+                    <span className="text-xs text-muted-foreground">{settings.ripple.rippleSpeed.toFixed(1)}</span>
+                  </div>
+                  <Slider
+                    min={0.1}
+                    max={5}
+                    step={0.1}
+                    value={[settings.ripple.rippleSpeed]}
+                    onValueChange={([v]) => updateSetting("ripple", "rippleSpeed", v)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <Label>Strobe Intensity</Label>
+                    <span className="text-xs text-muted-foreground">{settings.ripple.strobeIntensity.toFixed(1)}</span>
+                  </div>
+                  <Slider
+                    min={0}
+                    max={1}
+                    step={0.1}
+                    value={[settings.ripple.strobeIntensity]}
+                    onValueChange={([v]) => updateSetting("ripple", "strobeIntensity", v)}
+                  />
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {currVisualizer === "InfinitySquares" && (
-            <div className="grid gap-4">
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <Label>Square Count</Label>
-                  <span className="text-xs text-muted-foreground">{settings.infinitySquares.squareCount}</span>
+            {currVisualizer === "InfinitySquares" && (
+              <div className="grid gap-4">
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <Label>Square Count</Label>
+                    <span className="text-xs text-muted-foreground">{settings.infinitySquares.squareCount}</span>
+                  </div>
+                  <Slider
+                    min={10}
+                    max={100}
+                    step={1}
+                    value={[settings.infinitySquares.squareCount]}
+                    onValueChange={([v]) => updateSetting("infinitySquares", "squareCount", v)}
+                  />
                 </div>
-                <Slider
-                  min={10}
-                  max={100}
-                  step={1}
-                  value={[settings.infinitySquares.squareCount]}
-                  onValueChange={([v]) => updateSetting("infinitySquares", "squareCount", v)}
-                />
-              </div>
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <Label>Base Size</Label>
-                  <span className="text-xs text-muted-foreground">{settings.infinitySquares.baseSize}</span>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <Label>Base Size</Label>
+                    <span className="text-xs text-muted-foreground">{settings.infinitySquares.baseSize}</span>
+                  </div>
+                  <Slider
+                    min={100}
+                    max={1000}
+                    step={50}
+                    value={[settings.infinitySquares.baseSize]}
+                    onValueChange={([v]) => updateSetting("infinitySquares", "baseSize", v)}
+                  />
                 </div>
-                <Slider
-                  min={100}
-                  max={1000}
-                  step={50}
-                  value={[settings.infinitySquares.baseSize]}
-                  onValueChange={([v]) => updateSetting("infinitySquares", "baseSize", v)}
-                />
-              </div>
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <Label>Speed</Label>
-                  <span className="text-xs text-muted-foreground">{settings.infinitySquares.speed}</span>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <Label>Speed</Label>
+                    <span className="text-xs text-muted-foreground">{settings.infinitySquares.speed}</span>
+                  </div>
+                  <Slider
+                    min={1}
+                    max={20}
+                    step={1}
+                    value={[settings.infinitySquares.speed]}
+                    onValueChange={([v]) => updateSetting("infinitySquares", "speed", v)}
+                  />
                 </div>
-                <Slider
-                  min={1}
-                  max={20}
-                  step={1}
-                  value={[settings.infinitySquares.speed]}
-                  onValueChange={([v]) => updateSetting("infinitySquares", "speed", v)}
-                />
               </div>
-            </div>
-          )}
+            )}
+          </div>
+
+          <Separator />
+          
+          <Button 
+            variant="default" 
+            size="sm" 
+            className="w-fit gap-2"
+            onClick={() => resetSettings(currentSettingsKey)}
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            Reset to Default
+          </Button>
         </div>
       </PopoverContent>
     </Popover>
