@@ -8,7 +8,7 @@ interface ImageBoomProps {
 const ImageBoom: React.FC<ImageBoomProps> = ({
   audioBands,
 }) => {
-  const { imageSrc } = useSettingsStore((state) => state.settings.imageBoom);
+  const { imageSrc, centerText } = useSettingsStore((state) => state.settings.imageBoom);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>(0);
   const lastKickTimeRef = useRef(0);
@@ -177,24 +177,24 @@ const ImageBoom: React.FC<ImageBoomProps> = ({
         className="fixed z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-60 inset-0 flex items-center justify-center pointer-events-none backdrop-blur-sm transition-all duration-75 bg-black/5"
       >
         <div className="relative text-5xl font-bold tracking-wider font-mono" ref={mainTextRef}>
-          <div className="text-foreground/90 drop-shadow-[0_0_20px_rgba(255,255,255,0.5)]">prabhatlabs</div>
+          <div className="text-foreground/90 drop-shadow-[0_0_20px_rgba(255,255,255,0.5)]">{centerText}</div>
           <div
             ref={logoRedRef}
             className="absolute -z-10 top-0 left-0 text-red-500/65 opacity-0 transition-opacity drop-shadow-[0_0_15px_rgba(239,68,68,0.9)]"
           >
-            prabhatlabs
+            {centerText}
           </div>
           <div
             ref={logoGreenRef}
             className="absolute -z-10 top-0 left-0 text-green-500/45 opacity-0 transition-opacity drop-shadow-[0_0_15px_rgba(34,197,94,0.9)]"
           >
-            prabhatlabs
+            {centerText}
           </div>
           <div
             ref={logoBlueRef}
             className="absolute -z-10 top-0 left-0 text-blue-500/65 opacity-0 transition-opacity drop-shadow-[0_0_15px_rgba(59,130,246,0.9)]"
           >
-            prabhatlabs
+            {centerText}
           </div>
         </div>
       </div>

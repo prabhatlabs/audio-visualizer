@@ -12,11 +12,12 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { useAppStore } from "@/store/appStore";
 import { useAudioCaptureStore } from "@/store/audioCapture";
 import { colorObj, useColorStore, type ColorThemeType } from "@/store/colorStore";
 import { useSettingsStore } from "@/store/settingsStore";
-import { MonitorPlay, Palette, Settings2 } from "lucide-react";
+import { MonitorPlay, Palette, Settings2, Upload } from "lucide-react";
 import CaptureAudioBtn from "./CaptureAudioBtn";
 import { Button } from "./ui/button";
 
@@ -81,6 +82,17 @@ const VisualizerSettings = () => {
   const { currVisualizer } = useAppStore();
   const { settings, updateSetting } = useSettingsStore();
 
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        updateSetting("imageBoom", "imageSrc", reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -141,6 +153,37 @@ const VisualizerSettings = () => {
                   step={1}
                   value={[settings.cubeViz.shakeIntensity]}
                   onValueChange={([v]) => updateSetting("cubeViz", "shakeIntensity", v)}
+                />
+              </div>
+            </div>
+          )}
+
+          {currVisualizer === "ImageBoom" && (
+            <div className="grid gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="image-upload" className="flex items-center gap-2">
+                  <Upload className="w-4 h-4" />
+                  Custom Image
+                </Label>
+                <Input
+                  id="image-upload"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="cursor-pointer"
+                />
+                <p className="text-xs text-muted-foreground italic">
+                  Best with PNGs or transparent backgrounds.
+                </p>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="center-text">Center Text</Label>
+                <Input
+                  id="center-text"
+                  type="text"
+                  value={settings.imageBoom.centerText}
+                  onChange={(e) => updateSetting("imageBoom", "centerText", e.target.value)}
+                  placeholder="Enter custom text..."
                 />
               </div>
             </div>

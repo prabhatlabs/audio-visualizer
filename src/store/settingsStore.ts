@@ -22,6 +22,7 @@ interface VisualizerSettings {
     };
     imageBoom: {
         imageSrc: string;
+        centerText: string;
     };
 }
 
@@ -57,6 +58,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
         },
         imageBoom: {
             imageSrc: "/image.png",
+            centerText: "prabhatlabs",
         },
     },
     updateSetting: (viz, key, value) =>
