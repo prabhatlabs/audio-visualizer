@@ -57,7 +57,7 @@ const IslandModal: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     return (
         <Dialog>
             <DialogTrigger asChild>{children}</DialogTrigger>
-            <DialogContent className="w-[calc(100%-32px)] md:w-full md:max-w-md h-[80vh] flex flex-col overflow-hidden">
+            <DialogContent className="w-[calc(100%-32px)] md:w-full md:max-w-md h-[85vh] flex flex-col overflow-hidden">
                 <Tabs
                     defaultValue="player"
                     className="w-full flex-1 flex flex-col min-h-0 gap-0"

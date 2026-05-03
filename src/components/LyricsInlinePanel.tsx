@@ -14,7 +14,7 @@ const LyricsInlinePanel: React.FC<{
     fontSize = "18px",
     activeFontSize = "24px",
 }) => {
-    const { lyrics } = useLyricsStore();
+    const { lyrics, isLoading } = useLyricsStore();
     const { currentTime, setSeeking, setLocalSeek } = usePlaybackStore();
     const [currentLineIndex, setCurrentLineIndex] = useState<number | null>(
         null,
@@ -66,39 +66,58 @@ const LyricsInlinePanel: React.FC<{
         <div
             ref={containerRef}
             className={cn(
-                "pr-2 py-30 overflow-y-auto h-55 mask-y-from-80% text-center",
+                "pr-2 py-20 overflow-y-auto h-55 mask-y-from-80% text-center",
                 hideScrollbar && "no-scrollbar",
                 className,
             )}
         >
-            {(!lyrics || lyrics.lines.length === 0) && (
+            {isLoading && (
+                <div className="space-y-4 py-8 flex flex-col items-center w-full">
+                    <div className="h-6 w-3/4 bg-muted animate-pulse rounded-md" />
+                    <div className="h-8 w-1/2 bg-muted animate-pulse rounded-md" />
+                    <div className="h-6 w-2/3 bg-muted animate-pulse rounded-md" />
+                </div>
+            )}
+            {!isLoading && (!lyrics || (lyrics.lines.length === 0 && !lyrics.plainLyrics)) && (
                 <div className="p-4 text-sm text-muted-foreground">
                     No lyrics found!
                 </div>
             )}
-            {lyrics?.lines.map((line, i) => {
-                const isActive = i === currentLineIndex;
-                return (
+            {!isLoading &&
+                lyrics &&
+                lyrics.lines.length === 0 &&
+                lyrics.plainLyrics && (
                     <div
-                        key={i}
-                        ref={isActive ? activeLineRef : null}
-                        onClick={() => handleLineClick(line.time)}
-                        style={{
-                            padding: "6px 0",
-                            color: isActive
-                                ? "var(--foreground)"
-                                : "var(--muted-foreground)",
-                            fontWeight: isActive ? 700 : 400,
-                            fontSize: isActive ? activeFontSize : fontSize,
-                            opacity: isActive ? 1 : 0.6,
-                            transition: "all 0.2s ease",
-                            cursor: "pointer",
-                        }}
+                        className="whitespace-pre-wrap py-4 px-4 text-muted-foreground leading-relaxed"
+                        style={{ fontSize }}
                     >
-                        {line.text}
+                        {lyrics.plainLyrics}
                     </div>
-                );
-            })}
+                )}
+            {!isLoading &&
+                lyrics?.lines.map((line, i) => {
+                    const isActive = i === currentLineIndex;
+                    return (
+                        <div
+                            key={i}
+                            ref={isActive ? activeLineRef : null}
+                            onClick={() => handleLineClick(line.time)}
+                            style={{
+                                padding: "6px 0",
+                                color: isActive
+                                    ? "var(--foreground)"
+                                    : "var(--muted-foreground)",
+                                fontWeight: isActive ? 700 : 400,
+                                fontSize: isActive ? activeFontSize : fontSize,
+                                opacity: isActive ? 1 : 0.6,
+                                transition: "all 0.2s ease",
+                                cursor: "pointer",
+                            }}
+                        >
+                            {line.text}
+                        </div>
+                    );
+                })}
         </div>
     );
 };

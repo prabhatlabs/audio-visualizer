@@ -96,7 +96,7 @@ const PlayerControl: React.FC = () => {
             </div>
 
             {/* seek */}
-            <div className="space-y-2 mb-4">
+            <div className="space-y-2 mb-6">
                 <div className="flex justify-between text-xs text-muted-foreground">
                     <span>{formatTime(currentTime)}</span>
                     <span>{formatTime(duration)}</span>
