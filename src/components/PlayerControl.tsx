@@ -1,15 +1,37 @@
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { Progress } from "@/components/ui/progress";
 import { formatTime } from "@/lib/time";
 import { useAppStore } from "@/store/appStore";
+import { useLyricsStore } from "@/store/lyricsStore";
 import { usePlaybackStore } from "@/store/playbackStore";
 import { Music, Pause, Play, SkipBack, SkipForward } from "lucide-react";
+import { useEffect } from "react";
+import LyricsInlinePanel from "./LyricsInlinePanel";
 
 const PlayerControl: React.FC = () => {
     const { playing, togglePlaying, currentTrack } = useAppStore();
-    const { currentTime, seeking, setSeeking, localSeek, setLocalSeek } =
-        usePlaybackStore();
+    const {
+        currentTime,
+        seeking,
+        setSeeking,
+        localSeek,
+        setLocalSeek,
+        loaded,
+    } = usePlaybackStore();
+    const { fetchLyrics } = useLyricsStore();
+
+    useEffect(() => {
+        async function fetchLyricsOnTrackChange() {
+            if (currentTrack) {
+                await fetchLyrics(
+                    currentTrack.videoId,
+                    currentTrack.title,
+                    currentTrack.author,
+                );
+            }
+        }
+        fetchLyricsOnTrackChange();
+    }, [currentTrack, fetchLyrics]);
 
     const durationSeconds = currentTrack?.timestamp
         ? currentTrack.timestamp
@@ -34,10 +56,12 @@ const PlayerControl: React.FC = () => {
             <div className="flex justify-center items-center">
                 <div className="aspect-square bg-foreground/20 h-50 w-50 relative">
                     <Music className="size-25 text-muted-foreground absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
-                    <img
-                        src={currentTrack?.thumbnail || ""}
-                        alt={currentTrack?.title || "No track"}
-                    />
+                    {currentTrack?.thumbnail && (
+                        <img
+                            src={currentTrack?.thumbnail || ""}
+                            alt={currentTrack?.title || "No track"}
+                        />
+                    )}
                 </div>
             </div>
             <div className="text-center space-y-2">
@@ -64,22 +88,18 @@ const PlayerControl: React.FC = () => {
                     <span>{formatTime(currentTime)}</span>
                     <span>{currentTrack?.timestamp || "0:00"}</span>
                 </div>
-                <div className="relative h-2">
+                <div className="relative">
                     <Slider
                         value={[seeking ? localSeek : progress]}
                         max={100}
                         step={0.1}
+                        bufferValue={loaded}
                         onValueChange={handleSeekChange}
                         onValueCommit={handleSeekCommit}
-                        className="absolute w-full z-10"
-                    />
-                    <Progress
-                        value={progress}
-                        bufferValue={progress + 15}
-                        className="absolute h-2 w-full z-0"
                     />
                 </div>
             </div>
+            <LyricsInlinePanel />
         </div>
     );
 };

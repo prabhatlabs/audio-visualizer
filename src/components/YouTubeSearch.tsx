@@ -1,12 +1,6 @@
 import { useAppStore, type Track } from "@/store/appStore";
-import {
-    Clock,
-    Loader2,
-    Music,
-    PlusCircle,
-    Search,
-    User,
-} from "lucide-react";
+import { useLyricsStore } from "@/store/lyricsStore";
+import { Clock, Loader2, Music, PlusCircle, Search, User } from "lucide-react";
 import React, { useState } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -14,7 +8,8 @@ import { Input } from "./ui/input";
 const YouTubeSearch: React.FC = () => {
     const [query, setQuery] = useState("");
     const [loading, setLoading] = useState(false);
-    const { setCurrentTrack, searchResults, setSearchResults, addToQueue } = useAppStore();
+    const { setCurrentTrack, searchResults, setSearchResults, addToQueue } =
+        useAppStore();
 
     const handleSearch = async () => {
         if (!query) return;
@@ -34,7 +29,7 @@ const YouTubeSearch: React.FC = () => {
         }
     };
 
-    const selectTrack = (track: Track) => {
+    const selectTrack = async (track: Track) => {
         setCurrentTrack(track);
     };
 
@@ -88,10 +83,13 @@ const YouTubeSearch: React.FC = () => {
                                 </span>
                             </div>
                         </div>
-                        <Button 
-                            variant="ghost" 
-                            className="pr-3" 
-                            onClick={(e) => { e.stopPropagation(); addToQueue(track); }}
+                        <Button
+                            variant="ghost"
+                            className="pr-3"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                addToQueue(track);
+                            }}
                         >
                             <PlusCircle className="w-4 h-4 text-muted-foreground shrink-0" />
                         </Button>

@@ -22,24 +22,31 @@ interface LyricsState {
     isLoading: boolean;
     error: string | null;
     cache: Record<string, LyricsCacheEntry>;
-    fetchLyrics: (videoId: string, title: string, artist: string) => Promise<void>;
+    fetchLyrics: (
+        videoId: string,
+        title: string,
+        artist: string,
+    ) => Promise<void>;
     clearLyrics: () => void;
 }
 
 // Helper to parse LRC format
 const parseLRC = (lrc: string): LyricsLine[] => {
-    const lines = lrc.split('\n');
+    const lines = lrc.split("\n");
     const result: LyricsLine[] = [];
     const timeRegex = /\[(\d{2}):(\d{2})\.(\d{2,3})\]/;
 
-    lines.forEach(line => {
+    lines.forEach((line) => {
         const match = timeRegex.exec(line);
         if (match) {
             const minutes = parseInt(match[1]);
             const seconds = parseInt(match[2]);
             const milliseconds = parseInt(match[3]);
-            const time = minutes * 60 + seconds + milliseconds / (match[3].length === 3 ? 1000 : 100);
-            const text = line.replace(timeRegex, '').trim();
+            const time =
+                minutes * 60 +
+                seconds +
+                milliseconds / (match[3].length === 3 ? 1000 : 100);
+            const text = line.replace(timeRegex, "").trim();
             if (text) {
                 result.push({ time, text });
             }
@@ -62,7 +69,11 @@ export const useLyricsStore = create<LyricsState>()(
 
                 // Check cache first
                 if (cache[videoId]) {
-                    set({ lyrics: cache[videoId].data, error: null, isLoading: false });
+                    set({
+                        lyrics: cache[videoId].data,
+                        error: null,
+                        isLoading: false,
+                    });
                     return;
                 }
 
@@ -77,8 +88,10 @@ export const useLyricsStore = create<LyricsState>()(
                     if (data.error) throw new Error(data.error);
 
                     const lyricsData: LyricsData = {
-                        lines: data.synced_lyrics ? parseLRC(data.synced_lyrics) : [],
-                        plainLyrics: data.plain_lyrics || ""
+                        lines: data.synced_lyrics
+                            ? parseLRC(data.synced_lyrics)
+                            : [],
+                        plainLyrics: data.plain_lyrics || "",
                     };
 
                     // Update cache (limit 100)
@@ -86,27 +99,38 @@ export const useLyricsStore = create<LyricsState>()(
                     newCache[videoId] = {
                         videoId,
                         data: lyricsData,
-                        timestamp: Date.now()
+                        timestamp: Date.now(),
                     };
 
                     const keys = Object.keys(newCache);
                     if (keys.length > 100) {
-                        const oldestKey = keys.sort((a, b) => newCache[a].timestamp - newCache[b].timestamp)[0];
+                        const oldestKey = keys.sort(
+                            (a, b) =>
+                                newCache[a].timestamp - newCache[b].timestamp,
+                        )[0];
                         delete newCache[oldestKey];
                     }
 
-                    set({ lyrics: lyricsData, cache: newCache, isLoading: false });
+                    set({
+                        lyrics: lyricsData,
+                        cache: newCache,
+                        isLoading: false,
+                    });
                 } catch (err) {
                     console.error("Lyrics fetch error:", err);
-                    set({ error: "Lyrics not found", isLoading: false, lyrics: null });
+                    set({
+                        error: "Lyrics not found",
+                        isLoading: false,
+                        lyrics: null,
+                    });
                 }
             },
 
-            clearLyrics: () => set({ lyrics: null, error: null })
+            clearLyrics: () => set({ lyrics: null, error: null }),
         }),
         {
             name: "lyrics-cache",
             partialize: (state) => ({ cache: state.cache }), // Only persist the cache
-        }
-    )
+        },
+    ),
 );

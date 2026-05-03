@@ -1,8 +1,4 @@
-import {
-    Dialog,
-    DialogContent,
-    DialogTrigger,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAppStore } from "@/store/appStore";
 import { usePlaybackStore } from "@/store/playbackStore";
@@ -15,19 +11,19 @@ import YouTubePlayer from "./YouTubePlayer";
 import { formatTime } from "@/lib/time";
 
 const CurrentTrackInfo = () => {
-    const { currentTrack, ytMode } = useAppStore();
+    const { currentTrack } = useAppStore();
     const { currentTime } = usePlaybackStore();
 
-    if (!ytMode || !currentTrack) return null;
     return (
-        <div className="flex items-center gap-3 max-w-60 px-4 py-1 bg-background/50 backdrop-blur-xs rounded-full border border-border">
+        <div className="flex items-center gap-3 max-w-60 w-full px-4 py-1 bg-background/50 backdrop-blur-xs rounded-full border border-border">
             <Music className="w-3 h-3 text-primary animate-pulse shrink-0" />
-            <div className="flex flex-col truncate">
+            <div className="flex flex-col truncate w-full">
                 <span className="text-xs font-medium truncate">
-                    {currentTrack.title}
+                    {currentTrack?.title || "-"}
                 </span>
                 <span className="text-[10px] text-muted-foreground">
-                    {formatTime(currentTime)} / {currentTrack.timestamp}
+                    {formatTime(currentTime)} /{" "}
+                    {currentTrack?.timestamp || "--:--"}
                 </span>
             </div>
         </div>
@@ -36,10 +32,10 @@ const CurrentTrackInfo = () => {
 
 const PlaybackToggle = () => {
     const { playing, togglePlaying, currentTrack } = useAppStore();
-    if (!currentTrack) return null;
 
     return (
         <Button
+            disabled={!currentTrack}
             variant="outline"
             size="icon"
             onClick={(e) => {

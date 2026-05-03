@@ -18,7 +18,7 @@ const YouTubePlayer: React.FC = () => {
         setCurrentTrack,
     } = useAppStore();
 
-    const { setCurrentTime, seeking, setSeeking, localSeek } =
+    const { setCurrentTime, seeking, setSeeking, localSeek, setLoaded: setBufferLoaded } =
         usePlaybackStore();
 
     // Sync seeking commit from store to player
@@ -103,7 +103,9 @@ const YouTubePlayer: React.FC = () => {
         const player = playerRef.current;
         if (!player || seeking || !player.buffered?.length) return;
         const bufferedEnd = player.buffered.end(player.buffered.length - 1);
-        setLoaded(bufferedEnd / player.duration);
+        const loadedRatio = bufferedEnd / player.duration;
+        setLoaded(loadedRatio);
+        setBufferLoaded(loadedRatio * 100);
     };
 
     // Mirror App's onTimeUpdate — drives seek slider + playbackStore
