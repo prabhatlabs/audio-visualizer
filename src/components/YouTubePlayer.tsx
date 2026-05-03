@@ -41,6 +41,15 @@ const YouTubePlayer: React.FC = () => {
         prevSeekingRef.current = seeking;
     }, [seeking, localSeek]);
 
+    // Reset playback state on track change
+    useEffect(() => {
+        if (currentTrack) {
+            setPlayed(0);
+            setLoaded(0);
+            setCurrentTime(0);
+        }
+    }, [currentTrack, setCurrentTime]);
+
     const volume = useSettingsStore((s) => s.settings.youtube.volume);
     const updateSetting = useSettingsStore((s) => s.updateSetting);
 

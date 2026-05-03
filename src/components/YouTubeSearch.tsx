@@ -8,7 +8,7 @@ import { Input } from "./ui/input";
 const YouTubeSearch: React.FC = () => {
     const [query, setQuery] = useState("");
     const [loading, setLoading] = useState(false);
-    const { setCurrentTrack, searchResults, setSearchResults, addToQueue } =
+    const { playTrack, searchResults, setSearchResults, addToQueue } =
         useAppStore();
 
     const handleSearch = async () => {
@@ -30,7 +30,7 @@ const YouTubeSearch: React.FC = () => {
     };
 
     const selectTrack = async (track: Track) => {
-        setCurrentTrack(track);
+        playTrack(track);
     };
 
     return (

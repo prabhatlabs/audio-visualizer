@@ -32,7 +32,7 @@ function VisualizerPage() {
             {ytMode && showLyrics && (
                 <div className="w-1/2">
                     <LyricsInlinePanel
-                        className="h-[50dvh] py-[25dvh]"
+                        className="h-[30dvh] py-[15dvh]"
                         hideScrollbar
                         activeFontSize="32px"
                         fontSize="20px"

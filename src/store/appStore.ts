@@ -25,6 +25,7 @@ interface AudioCaptureStore {
     toggleYtMode: () => void;
     currentTrack: Track | null;
     setCurrentTrack: (track: Track | null) => void;
+    playTrack: (track: Track) => void;
     queue: Track[];
     addToQueue: (track: Track) => void;
     removeFromQueue: (videoId: string) => void;
@@ -57,7 +58,8 @@ export const useAppStore = create<AudioCaptureStore>()(
             ytMode: false,
             toggleYtMode: () => set((state) => ({ ytMode: !state.ytMode })),
             currentTrack: null,
-            setCurrentTrack: (track: Track | null) => set({ currentTrack: track, playing: false }),
+            setCurrentTrack: (track: Track | null) => set({ currentTrack: track, playing: !!track }),
+            playTrack: (track: Track) => set({ currentTrack: track, playing: true }),
             queue: [],
             addToQueue: (track: Track) => set((state) => ({ queue: [...state.queue, track] })),
             removeFromQueue: (videoId: string) => set((state) => ({ queue: state.queue.filter(t => t.videoId !== videoId) })),
