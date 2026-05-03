@@ -26,7 +26,6 @@ import {
     Laptop,
     MonitorPlay,
     Palette,
-    Radio,
     RotateCcw,
     Settings2,
     Upload,
@@ -502,7 +501,7 @@ const ModeToggle = () => {
 };
 
 const ControlBar = () => {
-    const { isCapturing, startCapture } = useAudioCaptureStore();
+    const { isCapturing, startTabCapture } = useAudioCaptureStore();
     const { ytMode } = useAppStore();
 
     return (
@@ -516,30 +515,12 @@ const ControlBar = () => {
 
                     <Separator orientation="vertical" className="h-8 mx-1" />
 
-                    {!ytMode ? (
-                        <>
-                            <CaptureAudioBtn />
-                            <span className="text-sm italic text-muted-foreground">
-                                {isCapturing
-                                    ? "Capturing Audio"
-                                    : "Not Capturing Audio"}
-                            </span>
-                        </>
-                    ) : (
-                        <>
-                            {!isCapturing && (
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => startCapture()}
-                                    className="gap-2 text-yellow-500 hover:text-yellow-600 hover:bg-yellow-500/10"
-                                >
-                                    <Radio className="w-4 h-4" />
-                                    Connect Visualizer
-                                </Button>
-                            )}
-                        </>
-                    )}
+                    <CaptureAudioBtn />
+                    <span className="text-sm italic text-muted-foreground">
+                        {isCapturing
+                            ? "Capturing Audio"
+                            : "Not Capturing Audio"}
+                    </span>
                 </div>
                 <div className="flex items-center gap-2"></div>
             </div>

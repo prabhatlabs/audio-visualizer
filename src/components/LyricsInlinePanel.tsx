@@ -71,9 +71,9 @@ const LyricsInlinePanel: React.FC<{
                 className,
             )}
         >
-            {!lyrics && (
+            {(!lyrics || lyrics.lines.length === 0) && (
                 <div className="p-4 text-sm text-muted-foreground">
-                    No lyrics loaded
+                    No lyrics found!
                 </div>
             )}
             {lyrics?.lines.map((line, i) => {
