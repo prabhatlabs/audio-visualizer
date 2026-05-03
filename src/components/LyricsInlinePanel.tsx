@@ -1,8 +1,9 @@
+import { cn } from "@/lib/utils";
 import { useLyricsStore } from "@/store/lyricsStore";
 import { usePlaybackStore } from "@/store/playbackStore";
 import React, { useEffect, useRef, useState } from "react";
 
-const LyricsInlinePanel: React.FC = () => {
+const LyricsInlinePanel: React.FC = ({ className }: { className?: string }) => {
     const { lyrics } = useLyricsStore();
     const { currentTime, setSeeking, setLocalSeek, duration } =
         usePlaybackStore();
@@ -55,7 +56,10 @@ const LyricsInlinePanel: React.FC = () => {
     return (
         <div
             ref={containerRef}
-            className="pr-2 py-30 overflow-y-auto h-55 mask-y-from-80% text-center"
+            className={cn(
+                "pr-2 py-30 overflow-y-auto h-55 mask-y-from-80% text-center",
+                className,
+            )}
         >
             {!lyrics && (
                 <div className="p-4 text-sm text-muted-foreground">

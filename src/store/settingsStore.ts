@@ -27,6 +27,7 @@ interface VisualizerSettings {
     };
     youtube: {
         volume: number;
+        showLyrics: boolean;
     };
 }
 
@@ -56,6 +57,7 @@ const defaultSettings: VisualizerSettings = {
     },
     youtube: {
         volume: 0.8,
+        showLyrics: false,
     },
 };
 

@@ -53,8 +53,9 @@ const PlayerControl: React.FC = () => {
     };
 
     return (
-        <div className="space-y-6">
-            <div className="flex justify-center items-center">
+        <div className="">
+            {/* image */}
+            <div className="flex justify-center items-center my-6">
                 <div className="aspect-square bg-foreground/20 h-50 w-50 relative">
                     <Music className="size-25 text-muted-foreground absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
                     {currentTrack?.thumbnail && (
@@ -65,7 +66,9 @@ const PlayerControl: React.FC = () => {
                     )}
                 </div>
             </div>
-            <div className="text-center space-y-2">
+
+            {/* title and artist */}
+            <div className="text-center space-y-1">
                 <h3 className="font-medium truncate text-xl px-3">
                     {currentTrack?.title || "No track"}
                 </h3>
@@ -73,18 +76,27 @@ const PlayerControl: React.FC = () => {
                     {currentTrack?.author || "No Artist"}
                 </h5>
             </div>
-            <div className="flex justify-center items-center gap-4">
-                <Button variant="outline" size="icon">
+
+            {/* buttons */}
+            <div className="flex justify-center items-center gap-4 mt-4">
+                <Button variant="ghost" size="icon">
                     <SkipBack />
                 </Button>
-                <Button variant="default" size="icon" onClick={togglePlaying}>
+                <Button
+                    variant="default"
+                    size="icon-lg"
+                    className="rounded-full"
+                    onClick={togglePlaying}
+                >
                     {playing ? <Pause /> : <Play />}
                 </Button>
-                <Button variant="outline" size="icon">
+                <Button variant="ghost" size="icon">
                     <SkipForward />
                 </Button>
             </div>
-            <div className="space-y-2">
+
+            {/* seek */}
+            <div className="space-y-2 mb-4">
                 <div className="flex justify-between text-xs text-muted-foreground">
                     <span>{formatTime(currentTime)}</span>
                     <span>{formatTime(duration)}</span>
@@ -100,6 +112,7 @@ const PlayerControl: React.FC = () => {
                     />
                 </div>
             </div>
+
             <LyricsInlinePanel />
         </div>
     );

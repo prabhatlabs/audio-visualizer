@@ -484,6 +484,24 @@ const ModeToggle = () => {
     );
 };
 
+const LyricsToggle = () => {
+    const { ytMode } = useAppStore();
+    const showLyrics = useSettingsStore((s) => s.settings.youtube.showLyrics);
+    const updateSetting = useSettingsStore((s) => s.updateSetting);
+
+    if (!ytMode) return null;
+
+    return (
+        <Button
+            variant="outline"
+            onClick={() => updateSetting("youtube", "showLyrics", !showLyrics)}
+            className="gap-2"
+        >
+            {showLyrics ? "Hide Lyrics" : "Show Lyrics"}
+        </Button>
+    );
+};
+
 const ControlBar = () => {
     const { isCapturing, startCapture } = useAudioCaptureStore();
     const { ytMode } = useAppStore();
@@ -493,6 +511,7 @@ const ControlBar = () => {
             <div className="flex justify-between gap-4 items-center">
                 <div className="flex items-center gap-2">
                     <ModeToggle />
+                    <LyricsToggle />
                     <VisualizerSwitcher />
                     <ColorThemeSwitcher />
                     <VisualizerSettings />
