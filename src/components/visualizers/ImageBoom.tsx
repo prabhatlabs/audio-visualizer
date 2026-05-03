@@ -180,7 +180,7 @@ const ImageBoom: React.FC<ImageBoomProps> = ({ audioBands }) => {
         <div className="relative">
             <div
                 ref={containerRef}
-                className="fixed z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-60 inset-0 flex items-center justify-center pointer-events-none backdrop-blur-sm transition-all duration-75 bg-black/5"
+                className="absolute z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-60 inset-0 flex items-center justify-center pointer-events-none backdrop-blur-sm transition-all duration-75 bg-black/5"
             >
                 <div
                     className="relative text-5xl font-bold tracking-wider font-mono"
@@ -211,7 +211,7 @@ const ImageBoom: React.FC<ImageBoomProps> = ({ audioBands }) => {
             </div>
             <canvas
                 ref={canvasRef}
-                className="w-full h-dvh block bg-black opacity-50"
+                className="w-full h-dvh block bg-black opacity-50 object-cover"
             />
         </div>
     );

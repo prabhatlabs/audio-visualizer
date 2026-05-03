@@ -3,10 +3,19 @@ import { useLyricsStore } from "@/store/lyricsStore";
 import { usePlaybackStore } from "@/store/playbackStore";
 import React, { useEffect, useRef, useState } from "react";
 
-const LyricsInlinePanel: React.FC = ({ className }: { className?: string }) => {
+const LyricsInlinePanel: React.FC<{
+    className?: string;
+    hideScrollbar?: boolean;
+    fontSize?: string;
+    activeFontSize?: string;
+}> = ({
+    className,
+    hideScrollbar = false,
+    fontSize = "18px",
+    activeFontSize = "24px",
+}) => {
     const { lyrics } = useLyricsStore();
-    const { currentTime, setSeeking, setLocalSeek, duration } =
-        usePlaybackStore();
+    const { currentTime, setSeeking, setLocalSeek } = usePlaybackStore();
     const [currentLineIndex, setCurrentLineIndex] = useState<number | null>(
         null,
     );
@@ -46,8 +55,8 @@ const LyricsInlinePanel: React.FC = ({ className }: { className?: string }) => {
     }, [currentLineIndex]);
 
     const handleLineClick = (timeMs: number) => {
-        const durationSeconds = duration;
-        const progressPercent = (timeMs / 1000 / durationSeconds) * 100;
+        const durationMs = lyrics?.lines[lyrics.lines.length - 1]?.time;
+        const progressPercent = (timeMs / (durationMs || 1)) * 100;
         setSeeking(true);
         setLocalSeek(progressPercent);
         requestAnimationFrame(() => setSeeking(false));
@@ -58,6 +67,7 @@ const LyricsInlinePanel: React.FC = ({ className }: { className?: string }) => {
             ref={containerRef}
             className={cn(
                 "pr-2 py-30 overflow-y-auto h-55 mask-y-from-80% text-center",
+                hideScrollbar && "no-scrollbar",
                 className,
             )}
         >
@@ -79,7 +89,7 @@ const LyricsInlinePanel: React.FC = ({ className }: { className?: string }) => {
                                 ? "var(--foreground)"
                                 : "var(--muted-foreground)",
                             fontWeight: isActive ? 700 : 400,
-                            fontSize: isActive ? "24px" : "18px",
+                            fontSize: isActive ? activeFontSize : fontSize,
                             opacity: isActive ? 1 : 0.6,
                             transition: "all 0.2s ease",
                             cursor: "pointer",

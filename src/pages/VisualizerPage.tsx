@@ -4,6 +4,7 @@ import { useSettingsStore } from "@/store/settingsStore";
 import { motion } from "framer-motion";
 import { lazy, Suspense, useEffect, useState } from "react";
 import LyricsInlinePanel from "@/components/LyricsInlinePanel";
+import LoaderPage from "@/components/LoaderPage";
 
 const CubeViz = lazy(() => import("@/components/visualizers/CubeViz"));
 const ImageBoom = lazy(() => import("@/components/visualizers/ImageBoom"));
@@ -29,12 +30,17 @@ function VisualizerPage() {
     return (
         <motion.div className="w-dvw h-full flex items-center px-6">
             {ytMode && showLyrics && (
-                <div className="w-1/3">
-                    <LyricsInlinePanel className="h-[calc(100dvh-200px)] py-[calc(50dvh-100px)]" />
+                <div className="w-1/2">
+                    <LyricsInlinePanel
+                        className="h-[50dvh] py-[25dvh]"
+                        hideScrollbar
+                        activeFontSize="32px"
+                        fontSize="20px"
+                    />
                 </div>
             )}
-            <div className={ytMode && showLyrics ? "w-2/3" : "w-full"}>
-                <Suspense fallback={<div>Loading...</div>}>
+            <div className={ytMode && showLyrics ? "w-1/2" : "w-full h-full"}>
+                <Suspense fallback={<LoaderPage />}>
                     {currVisualizer === "InfinitySquares" && (
                         <InfinitySquares audioBands={bandsRef} />
                     )}

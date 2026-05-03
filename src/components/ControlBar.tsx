@@ -96,6 +96,24 @@ const ColorThemeSwitcher = () => {
     );
 };
 
+const LyricsToggle = () => {
+    const { ytMode } = useAppStore();
+    const showLyrics = useSettingsStore((s) => s.settings.youtube.showLyrics);
+    const updateSetting = useSettingsStore((s) => s.updateSetting);
+
+    if (!ytMode) return null;
+
+    return (
+        <Button
+            variant="outline"
+            onClick={() => updateSetting("youtube", "showLyrics", !showLyrics)}
+            className="gap-2"
+        >
+            {showLyrics ? "Hide Lyrics" : "Show Lyrics"}
+        </Button>
+    );
+};
+
 const VisualizerSettings = () => {
     const { currVisualizer } = useAppStore();
     const { settings, updateSetting, resetSettings } = useSettingsStore();
@@ -409,8 +427,7 @@ const VisualizerSettings = () => {
                                         max={1000}
                                         step={50}
                                         value={[
-                                            settings.infinitySquares
-                                                .baseSize,
+                                            settings.infinitySquares.baseSize,
                                         ]}
                                         onValueChange={([v]) =>
                                             updateSetting(
@@ -451,12 +468,12 @@ const VisualizerSettings = () => {
                     <Button
                         variant="default"
                         size="sm"
-                        className="w-fit gap-2"
                         onClick={() => resetSettings(currentSettingsKey)}
                     >
                         <RotateCcw className="w-3.5 h-3.5" />
                         Reset to Default
                     </Button>
+                    <LyricsToggle />
                 </div>
             </PopoverContent>
         </Popover>
@@ -484,24 +501,6 @@ const ModeToggle = () => {
     );
 };
 
-const LyricsToggle = () => {
-    const { ytMode } = useAppStore();
-    const showLyrics = useSettingsStore((s) => s.settings.youtube.showLyrics);
-    const updateSetting = useSettingsStore((s) => s.updateSetting);
-
-    if (!ytMode) return null;
-
-    return (
-        <Button
-            variant="outline"
-            onClick={() => updateSetting("youtube", "showLyrics", !showLyrics)}
-            className="gap-2"
-        >
-            {showLyrics ? "Hide Lyrics" : "Show Lyrics"}
-        </Button>
-    );
-};
-
 const ControlBar = () => {
     const { isCapturing, startCapture } = useAudioCaptureStore();
     const { ytMode } = useAppStore();
@@ -511,7 +510,6 @@ const ControlBar = () => {
             <div className="flex justify-between gap-4 items-center">
                 <div className="flex items-center gap-2">
                     <ModeToggle />
-                    <LyricsToggle />
                     <VisualizerSwitcher />
                     <ColorThemeSwitcher />
                     <VisualizerSettings />
@@ -543,12 +541,10 @@ const ControlBar = () => {
                         </>
                     )}
                 </div>
-                <div className="flex items-center gap-2">
-                </div>
+                <div className="flex items-center gap-2"></div>
             </div>
         </div>
     );
 };
-
 
 export default ControlBar;
