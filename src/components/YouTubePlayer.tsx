@@ -18,8 +18,15 @@ const YouTubePlayer: React.FC = () => {
         setCurrentTrack,
     } = useAppStore();
 
-    const { setCurrentTime, seeking, setSeeking, localSeek, setLoaded: setBufferLoaded } =
-        usePlaybackStore();
+    const {
+        setCurrentTime,
+        seeking,
+        setSeeking,
+        localSeek,
+        setLoaded: setBufferLoaded,
+        duration,
+        setDuration,
+    } = usePlaybackStore();
 
     // Sync seeking commit from store to player
     // We detect when 'seeking' changes from true to false to trigger the seek action.
@@ -43,7 +50,6 @@ const YouTubePlayer: React.FC = () => {
     const [playbackRate, setPlaybackRate] = useState(1.0);
     const [played, setPlayed] = useState(0);
     const [loaded, setLoaded] = useState(0);
-    const [duration, setDuration] = useState(0);
 
     // ── Ref ───────────────────────────────────────────────────────────────────
     const setPlayerRef = useCallback((player: HTMLVideoElement) => {

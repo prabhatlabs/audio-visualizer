@@ -88,10 +88,15 @@ export const useLyricsStore = create<LyricsState>()(
                     if (data.error) throw new Error(data.error);
 
                     const lyricsData: LyricsData = {
-                        lines: data.synced_lyrics
-                            ? parseLRC(data.synced_lyrics)
-                            : [],
-                        plainLyrics: data.plain_lyrics || "",
+                        lines: data.data?.timed_lyrics
+                            ? data.data.timed_lyrics.map((item: { start_time: number; text: string }) => ({
+                                  time: item.start_time,
+                                  text: item.text,
+                              }))
+                            : data.data?.lyrics
+                              ? parseLRC(data.data.lyrics)
+                              : [],
+                        plainLyrics: data.data?.lyrics || "",
                     };
 
                     // Update cache (limit 100)

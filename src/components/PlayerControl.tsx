@@ -17,6 +17,7 @@ const PlayerControl: React.FC = () => {
         localSeek,
         setLocalSeek,
         loaded,
+        duration,
     } = usePlaybackStore();
     const { fetchLyrics } = useLyricsStore();
 
@@ -86,7 +87,7 @@ const PlayerControl: React.FC = () => {
             <div className="space-y-2">
                 <div className="flex justify-between text-xs text-muted-foreground">
                     <span>{formatTime(currentTime)}</span>
-                    <span>{currentTrack?.timestamp || "0:00"}</span>
+                    <span>{formatTime(duration)}</span>
                 </div>
                 <div className="relative">
                     <Slider
