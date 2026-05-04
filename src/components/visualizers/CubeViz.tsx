@@ -2,15 +2,18 @@ import gsap from "gsap";
 import React, { useEffect, useRef } from "react";
 import { colorObj, useColorStore } from "../../store/colorStore";
 import { useSettingsStore } from "../../store/settingsStore";
+import { useAppStore } from "@/store/appStore";
+import LyricsInlinePanel from "../LyricsInlinePanel";
 
 interface CubeVizProps {
     audioBands?: React.MutableRefObject<Float32Array>;
 }
 
-const CubeViz: React.FC<CubeVizProps> = ({
-    audioBands,
-}) => {
-    const { rotationSpeed, enableRotate, enableShake, shakeIntensity } = useSettingsStore((state) => state.settings.cubeViz);
+const CubeViz: React.FC<CubeVizProps> = ({ audioBands }) => {
+    const { rotationSpeed, enableRotate, enableShake, shakeIntensity } =
+        useSettingsStore((state) => state.settings.cubeViz);
+    const { showLyrics } = useSettingsStore((state) => state.settings.youtube);
+    const { ytMode } = useAppStore();
     const theme = useColorStore((state) => state.theme);
     const cubeWrapperRef = useRef<HTMLDivElement>(null);
     const cubeRef = useRef<HTMLDivElement>(null);
@@ -106,7 +109,8 @@ const CubeViz: React.FC<CubeVizProps> = ({
 
             const targetTranslateZ = 112 + bassLevel * 80;
             // Simple lerp for smooth transition without creating tweens every frame
-            translateZStateRef.current.z += (targetTranslateZ - translateZStateRef.current.z) * 0.15;
+            translateZStateRef.current.z +=
+                (targetTranslateZ - translateZStateRef.current.z) * 0.15;
             updateFaces(translateZStateRef.current.z);
 
             if (enableShake && cubeWrapperRef.current) {
@@ -145,43 +149,67 @@ const CubeViz: React.FC<CubeVizProps> = ({
                 cancelAnimationFrame(animationRef.current);
             }
         };
-    }, [audioBands, enableShake, shakeIntensity, theme]);
+    }, [
+        audioBands,
+        enableShake,
+        shakeIntensity,
+        theme,
+        colors,
+        kickCooldown,
+        kickThreshold,
+    ]);
+
+    const isLyricsVisible = ytMode && showLyrics;
 
     return (
-        <div className="w-full h-dvh flex items-center justify-center overflow-hidden">
-            <div className="w-72 h-72 flex items-center justify-center">
-                <div
-                    ref={cubeWrapperRef}
-                    className="shrink-0 w-56 h-56 p-0"
-                    style={{ perspective: "1000px" }}
-                >
+        <div className="w-full max-w-7xl mx-auto h-dvh flex items-center justify-center overflow-hidden">
+            {isLyricsVisible && (
+                <div className="w-1/2 px-6">
+                    <LyricsInlinePanel
+                        className="h-[40dvh] py-[15dvh] text-start"
+                        hideScrollbar
+                        activeFontSize="48px"
+                        fontSize="40px"
+                    />
+                </div>
+            )}
+            <div
+                className={`${isLyricsVisible ? "w-1/2" : "w-full"} flex items-center justify-center`}
+            >
+                <div className="w-72 h-72 flex items-center justify-center">
                     <div
-                        ref={cubeRef}
-                        className="relative w-full h-full"
-                        style={{ transformStyle: "preserve-3d" }}
+                        ref={cubeWrapperRef}
+                        className="shrink-0 w-56 h-56 p-0"
+                        style={{ perspective: "1000px" }}
                     >
-                        {Array.from({ length: 6 }).map((_, index) => (
-                            <div
-                                key={index}
-                                ref={(el) => {
-                                    faceRefs.current[index] = el;
-                                }}
-                                className="absolute w-full h-full bg-secondary rounded-lg"
-                                style={{
-                                    opacity: 0.7,
-                                    transform: [
-                                        `translateZ(112px)`,
-                                        `rotateY(90deg) translateZ(112px)`,
-                                        `rotateY(-90deg) translateZ(112px)`,
-                                        `rotateX(90deg) translateZ(112px)`,
-                                        `rotateX(-90deg) translateZ(112px)`,
-                                        `translateZ(-112px) rotateY(180deg)`,
-                                    ][index],
-                                    border: "3px solid var(--border)",
-                                    transition: "box-shadow 0.3s ease",
-                                }}
-                            />
-                        ))}
+                        <div
+                            ref={cubeRef}
+                            className="relative w-full h-full"
+                            style={{ transformStyle: "preserve-3d" }}
+                        >
+                            {Array.from({ length: 6 }).map((_, index) => (
+                                <div
+                                    key={index}
+                                    ref={(el) => {
+                                        faceRefs.current[index] = el;
+                                    }}
+                                    className="absolute w-full h-full bg-secondary rounded-lg"
+                                    style={{
+                                        opacity: 0.7,
+                                        transform: [
+                                            `translateZ(112px)`,
+                                            `rotateY(90deg) translateZ(112px)`,
+                                            `rotateY(-90deg) translateZ(112px)`,
+                                            `rotateX(90deg) translateZ(112px)`,
+                                            `rotateX(-90deg) translateZ(112px)`,
+                                            `translateZ(-112px) rotateY(180deg)`,
+                                        ][index],
+                                        border: "3px solid var(--border)",
+                                        transition: "box-shadow 0.3s ease",
+                                    }}
+                                />
+                            ))}
+                        </div>
                     </div>
                 </div>
             </div>

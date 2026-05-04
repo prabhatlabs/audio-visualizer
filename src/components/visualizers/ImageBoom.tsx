@@ -1,5 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import { useSettingsStore } from "../../store/settingsStore";
+import { useAppStore } from "@/store/appStore";
+import LyricsInlinePanel from "../LyricsInlinePanel";
 
 interface ImageBoomProps {
     audioBands?: React.MutableRefObject<Float32Array>;
@@ -9,6 +11,8 @@ const ImageBoom: React.FC<ImageBoomProps> = ({ audioBands }) => {
     const { imageSrc, centerText } = useSettingsStore(
         (state) => state.settings.imageBoom,
     );
+    const { showLyrics } = useSettingsStore((state) => state.settings.youtube);
+    const { ytMode } = useAppStore();
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const animationRef = useRef<number>(0);
     const lastKickTimeRef = useRef(0);
@@ -128,12 +132,18 @@ const ImageBoom: React.FC<ImageBoomProps> = ({ audioBands }) => {
             }
 
             if (containerRef.current) {
-                containerRef.current.style.height = `${currentHeightRef.current}px`;
+                const isLyrics = ytMode && showLyrics;
+                const baseHeight = isLyrics ? 400 : maxHeight;
+                containerRef.current.style.height = `${baseHeight - bassLevel * 80}px`;
             }
             if (mainTextRef.current) {
                 const shakeX = Math.random() * bassLevel * shakeIntensity;
                 const shakeY = Math.random() * bassLevel * shakeIntensity;
                 mainTextRef.current.style.transform = `translate(${shakeX}px, ${shakeY}px)`;
+                mainTextRef.current.style.setProperty(
+                    "--lyric-split",
+                    currentSplitRef.current.toFixed(2),
+                );
             }
 
             if (
@@ -174,39 +184,69 @@ const ImageBoom: React.FC<ImageBoomProps> = ({ audioBands }) => {
             }
             window.removeEventListener("resize", handleResize);
         };
-    }, [audioBands, imageSrc]);
+    }, [audioBands, imageSrc, ytMode, showLyrics]);
+
+    const isLyricsVisible = ytMode && showLyrics;
 
     return (
-        <div className="relative">
+        <div className="relative overflow-hidden">
+            <style>
+                {`
+                    .boom-lyrics-effect div {
+                        text-shadow: 0 0 20px rgba(255, 255, 255, 0.5),
+                                     calc(-1px * var(--lyric-split, 0)) 0px rgba(239, 68, 68, 0.65),
+                                     0px calc(-1px * var(--lyric-split, 0)) rgba(34, 197, 94, 0.45),
+                                     calc(1px * var(--lyric-split, 0)) calc(1px * var(--lyric-split, 0)) rgba(59, 130, 246, 0.65) !important;
+                        letter-spacing: 0.05em;
+                    }
+                `}
+            </style>
             <div
                 ref={containerRef}
                 className="absolute z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-60 inset-0 flex items-center justify-center pointer-events-none backdrop-blur-sm transition-all duration-75 bg-black/5"
             >
                 <div
-                    className="relative text-5xl font-bold tracking-wider font-mono"
+                    className="relative text-5xl font-bold tracking-wider font-mono w-full flex justify-center"
                     ref={mainTextRef}
                 >
-                    <div className="text-foreground/90 drop-shadow-[0_0_20px_rgba(255,255,255,0.5)]">
-                        {centerText}
-                    </div>
-                    <div
-                        ref={logoRedRef}
-                        className="absolute -z-10 top-0 left-0 text-red-500/65 opacity-0 transition-opacity drop-shadow-[0_0_15px_rgba(239,68,68,0.9)]"
-                    >
-                        {centerText}
-                    </div>
-                    <div
-                        ref={logoGreenRef}
-                        className="absolute -z-10 top-0 left-0 text-green-500/45 opacity-0 transition-opacity drop-shadow-[0_0_15px_rgba(34,197,94,0.9)]"
-                    >
-                        {centerText}
-                    </div>
-                    <div
-                        ref={logoBlueRef}
-                        className="absolute -z-10 top-0 left-0 text-blue-500/65 opacity-0 transition-opacity drop-shadow-[0_0_15px_rgba(59,130,246,0.9)]"
-                    >
-                        {centerText}
-                    </div>
+                    {isLyricsVisible ? (
+                        <div className="w-full max-w-4xl pointer-events-auto boom-lyrics-effect">
+                            <LyricsInlinePanel
+                                className="h-full py-[10dvh]"
+                                hideScrollbar
+                                fontSize="24px"
+                                activeFontSize="40px"
+                                oneLineMode={true}
+                                onelineClassName={
+                                    "flex item-center justify-center"
+                                }
+                            />
+                        </div>
+                    ) : (
+                        <>
+                            <div className="text-foreground/90 drop-shadow-[0_0_20px_rgba(255,255,255,0.5)]">
+                                {centerText}
+                            </div>
+                            <div
+                                ref={logoRedRef}
+                                className="absolute -z-10 top-0 left-1/2 -translate-x-1/2 text-red-500/65 opacity-0 transition-opacity drop-shadow-[0_0_15px_rgba(239,68,68,0.9)]"
+                            >
+                                {centerText}
+                            </div>
+                            <div
+                                ref={logoGreenRef}
+                                className="absolute -z-10 top-0 left-1/2 -translate-x-1/2 text-green-500/45 opacity-0 transition-opacity drop-shadow-[0_0_15px_rgba(34,197,94,0.9)]"
+                            >
+                                {centerText}
+                            </div>
+                            <div
+                                ref={logoBlueRef}
+                                className="absolute -z-10 top-0 left-1/2 -translate-x-1/2 text-blue-500/65 opacity-0 transition-opacity drop-shadow-[0_0_15px_rgba(59,130,246,0.9)]"
+                            >
+                                {centerText}
+                            </div>
+                        </>
+                    )}
                 </div>
             </div>
             <canvas

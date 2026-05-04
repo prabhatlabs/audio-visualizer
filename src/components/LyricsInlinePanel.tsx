@@ -2,17 +2,22 @@ import { cn } from "@/lib/utils";
 import { useLyricsStore } from "@/store/lyricsStore";
 import { usePlaybackStore } from "@/store/playbackStore";
 import React, { useEffect, useRef, useState } from "react";
+import { Music } from "lucide-react";
 
 const LyricsInlinePanel: React.FC<{
     className?: string;
     hideScrollbar?: boolean;
     fontSize?: string;
     activeFontSize?: string;
+    oneLineMode?: boolean;
+    onelineClassName?: string;
 }> = ({
     className,
+    onelineClassName,
     hideScrollbar = false,
     fontSize = "18px",
     activeFontSize = "24px",
+    oneLineMode = false,
 }) => {
     const { lyrics, isLoading } = useLyricsStore();
     const { currentTime, setSeeking, setLocalSeek } = usePlaybackStore();
@@ -49,7 +54,7 @@ const LyricsInlinePanel: React.FC<{
             const containerRect = container.getBoundingClientRect();
             const activeRect = activeEl.getBoundingClientRect();
             const offset =
-                activeRect.top - containerRect.top - containerRect.height / 2.5;
+                activeRect.top - containerRect.top - containerRect.height / 2;
             container.scrollBy({ top: offset, behavior: "smooth" });
         }
     }, [currentLineIndex]);
@@ -73,16 +78,18 @@ const LyricsInlinePanel: React.FC<{
         >
             {isLoading && (
                 <div className="space-y-4 py-8 flex flex-col items-center w-full">
-                    <div className="h-6 w-3/4 bg-muted animate-pulse rounded-md" />
-                    <div className="h-8 w-1/2 bg-muted animate-pulse rounded-md" />
-                    <div className="h-6 w-2/3 bg-muted animate-pulse rounded-md" />
+                    <div className="h-5 w-3/4 bg-muted animate-pulse rounded-md" />
+                    <div className="h-7 w-1/2 bg-muted animate-pulse rounded-md" />
+                    <div className="h-5 w-2/3 bg-muted animate-pulse rounded-md" />
                 </div>
             )}
-            {!isLoading && (!lyrics || (lyrics.lines.length === 0 && !lyrics.plainLyrics)) && (
-                <div className="p-4 text-sm text-muted-foreground">
-                    No lyrics found!
-                </div>
-            )}
+            {!isLoading &&
+                (!lyrics ||
+                    (lyrics.lines.length === 0 && !lyrics.plainLyrics)) && (
+                    <div className="p-4 text-sm text-muted-foreground">
+                        No lyrics found!
+                    </div>
+                )}
             {!isLoading &&
                 lyrics &&
                 lyrics.lines.length === 0 &&
@@ -94,30 +101,54 @@ const LyricsInlinePanel: React.FC<{
                         {lyrics.plainLyrics}
                     </div>
                 )}
-            {!isLoading &&
-                lyrics?.lines.map((line, i) => {
-                    const isActive = i === currentLineIndex;
-                    return (
+            {!isLoading && (
+                <>
+                    {oneLineMode ? (
                         <div
-                            key={i}
-                            ref={isActive ? activeLineRef : null}
-                            onClick={() => handleLineClick(line.time)}
                             style={{
                                 padding: "6px 0",
-                                color: isActive
-                                    ? "var(--foreground)"
-                                    : "var(--muted-foreground)",
-                                fontWeight: isActive ? 700 : 400,
-                                fontSize: isActive ? activeFontSize : fontSize,
-                                opacity: isActive ? 1 : 0.6,
-                                transition: "all 0.2s ease",
-                                cursor: "pointer",
+                                fontWeight: 700,
+                                fontSize: activeFontSize,
                             }}
+                            className={cn(onelineClassName)}
                         >
-                            {line.text}
+                            {lyrics?.lines[currentLineIndex]?.text || (
+                                <Music className={"size-7"} />
+                            )}
                         </div>
-                    );
-                })}
+                    ) : (
+                        <>
+                            {lyrics?.lines.map((line, i) => {
+                                const isActive = i === currentLineIndex;
+                                return (
+                                    <div
+                                        key={i}
+                                        ref={isActive ? activeLineRef : null}
+                                        onClick={() =>
+                                            handleLineClick(line.time)
+                                        }
+                                        style={{
+                                            padding: "6px 0",
+                                            color: isActive
+                                                ? "var(--foreground)"
+                                                : "var(--muted-foreground)",
+                                            fontWeight: isActive ? 700 : 400,
+                                            fontSize: isActive
+                                                ? activeFontSize
+                                                : fontSize,
+                                            opacity: isActive ? 1 : 0.6,
+                                            transition: "all 0.2s ease",
+                                            cursor: "pointer",
+                                        }}
+                                    >
+                                        {line.text}
+                                    </div>
+                                );
+                            })}
+                        </>
+                    )}
+                </>
+            )}
         </div>
     );
 };
