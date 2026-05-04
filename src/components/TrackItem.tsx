@@ -1,5 +1,5 @@
 import React from "react";
-import { Clock, Heart, Music, User } from "lucide-react";
+import { Clock, Heart, Music, User, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
 import type { Track } from "@/store/appStore";
@@ -18,7 +18,7 @@ const TrackItem: React.FC<TrackItemProps> = ({
     isFavorite,
 }) => (
     <div
-        className="cursor-pointer hover:bg-accent transition-colors bg-card flex items-center gap-4 rounded-md border w-full"
+        className="cursor-pointer hover:bg-accent transition-colors bg-card flex items-center gap-4 rounded-md border w-full group relative"
         onClick={() => onClick(track)}
     >
         <div className="flex justify-center items-center">
@@ -44,23 +44,26 @@ const TrackItem: React.FC<TrackItemProps> = ({
                 </span>
             </div>
         </div>
-        <Button
-            variant="ghost"
-            className="pr-3 hover:bg-transparent"
-            onClick={(e) => {
-                e.stopPropagation();
-                toggleFavorite(track);
-            }}
-        >
-            <Heart
-                className={cn(
-                    "w-4 h-4 shrink-0 transition-colors",
-                    isFavorite(track.videoId)
-                        ? "fill-red-500 text-red-500"
-                        : "text-muted-foreground",
-                )}
-            />
-        </Button>
+        <div className="flex items-center gap-1 pr-2">
+            <Button
+                variant="ghost"
+                size="icon"
+                className="hover:bg-transparent h-8 w-8"
+                onClick={(e) => {
+                    e.stopPropagation();
+                    toggleFavorite(track);
+                }}
+            >
+                <Heart
+                    className={cn(
+                        "w-4 h-4 shrink-0 transition-colors",
+                        isFavorite(track.videoId)
+                            ? "fill-red-500 text-red-500"
+                            : "text-muted-foreground",
+                    )}
+                />
+            </Button>
+        </div>
     </div>
 );
 

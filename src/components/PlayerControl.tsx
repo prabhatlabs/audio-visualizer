@@ -3,10 +3,24 @@ import { Slider } from "@/components/ui/slider";
 import { formatTime } from "@/lib/time";
 import { useAppStore } from "@/store/appStore";
 import { usePlaybackStore } from "@/store/playbackStore";
-import { Music, Pause, Play, SkipBack, SkipForward } from "lucide-react";
+import { useFavoritesStore } from "@/store/favoritesStore";
+import {
+    ListMusic,
+    Music,
+    Pause,
+    Play,
+    SkipBack,
+    SkipForward,
+    Heart,
+} from "lucide-react";
 import LyricsInlinePanel from "./LyricsInlinePanel";
+import { cn } from "@/lib/utils";
 
-const PlayerControl: React.FC = () => {
+interface PlayerControlProps {
+    onOpenFavorites: () => void;
+}
+
+const PlayerControl: React.FC<PlayerControlProps> = ({ onOpenFavorites }) => {
     const { playing, togglePlaying, currentTrack } = useAppStore();
     const {
         currentTime,
@@ -17,6 +31,7 @@ const PlayerControl: React.FC = () => {
         loaded,
         duration,
     } = usePlaybackStore();
+    const { isFavorite, toggleFavorite } = useFavoritesStore();
 
     const durationSeconds = currentTrack?.timestamp
         ? currentTrack.timestamp
@@ -62,25 +77,46 @@ const PlayerControl: React.FC = () => {
             </div>
 
             {/* buttons */}
-            <div className="flex justify-center items-center gap-4 mt-4">
-                <Button variant="ghost" size="icon">
-                    <SkipBack />
-                </Button>
+            <div className="flex justify-between items-center gap-4 mt-4 relative">
                 <Button
-                    variant="default"
-                    size="icon-lg"
-                    className="rounded-full"
-                    onClick={togglePlaying}
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => currentTrack && toggleFavorite(currentTrack)}
                 >
-                    {playing ? <Pause /> : <Play />}
+                    <Heart
+                        className={cn(
+                            "w-5 h-5",
+                            currentTrack && isFavorite(currentTrack.videoId)
+                                ? "fill-red-500 text-red-500"
+                                : "text-muted-foreground",
+                        )}
+                    />
                 </Button>
-                <Button variant="ghost" size="icon">
-                    <SkipForward />
+
+                <div className="flex items-center gap-4">
+                    <Button variant="ghost" size="icon">
+                        <SkipBack />
+                    </Button>
+                    <Button
+                        variant="default"
+                        size="icon-lg"
+                        className="rounded-full"
+                        onClick={togglePlaying}
+                    >
+                        {playing ? <Pause /> : <Play />}
+                    </Button>
+                    <Button variant="ghost" size="icon">
+                        <SkipForward />
+                    </Button>
+                </div>
+
+                <Button variant="ghost" size="icon" onClick={onOpenFavorites}>
+                    <ListMusic className="w-5 h-5 text-muted-foreground" />
                 </Button>
             </div>
 
             {/* seek */}
-            <div className="space-y-2 mb-6">
+            <div className="space-y-2 mb-6 px-2">
                 <div className="flex justify-between text-xs text-muted-foreground">
                     <span>{formatTime(currentTime)}</span>
                     <span>{formatTime(duration)}</span>

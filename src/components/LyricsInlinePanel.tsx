@@ -95,7 +95,7 @@ const LyricsInlinePanel: React.FC<{
                 lyrics.lines.length === 0 &&
                 lyrics.plainLyrics && (
                     <div
-                        className="whitespace-pre-wrap py-4 px-4 text-muted-foreground leading-relaxed"
+                        className="whitespace-pre-wrap py-4 px-4 text-foreground/50 leading-relaxed"
                         style={{ fontSize }}
                     >
                         {lyrics.plainLyrics}
@@ -112,7 +112,8 @@ const LyricsInlinePanel: React.FC<{
                             }}
                             className={cn(onelineClassName)}
                         >
-                            {lyrics?.lines[currentLineIndex]?.text || (
+                            {(currentLineIndex &&
+                                lyrics?.lines[currentLineIndex]?.text) || (
                                 <Music className={"size-7"} />
                             )}
                         </div>
@@ -131,7 +132,7 @@ const LyricsInlinePanel: React.FC<{
                                             padding: "6px 0",
                                             color: isActive
                                                 ? "var(--foreground)"
-                                                : "var(--muted-foreground)",
+                                                : "color-mix(in oklab, var(--foreground) 50%, transparent)",
                                             fontWeight: isActive ? 700 : 400,
                                             fontSize: isActive
                                                 ? activeFontSize

@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import { colorObj, useColorStore } from "../../store/colorStore";
 import { useSettingsStore } from "../../store/settingsStore";
+import LyricsInlinePanel from "../LyricsInlinePanel";
 
 interface RippleProps {
     audioBands?: React.MutableRefObject<Float32Array>;
@@ -15,6 +16,7 @@ const Ripple: React.FC<RippleProps> = ({ audioBands }) => {
         strobeIntensity,
         rippleSpeed,
     } = useSettingsStore((state) => state.settings.ripple);
+    const { showLyrics } = useSettingsStore((state) => state.settings.youtube);
     const kickThreshold = 0.6;
     const kickCooldown = 80;
     const theme = useColorStore((state) => state.theme);
@@ -171,7 +173,22 @@ const Ripple: React.FC<RippleProps> = ({ audioBands }) => {
     }, [audioBands, enableRipple, enableStrobe, enableShake, theme]);
 
     return (
-        <canvas ref={canvasRef} className="w-full h-dvh object-cover block" />
+        <div className="relative">
+            {showLyrics && (
+                <div className="absolute bottom-0 left-0 px-6 mb-10">
+                    <LyricsInlinePanel
+                        className="h-[40dvh] py-[15dvh] text-start mask-y-from-60% px-6"
+                        hideScrollbar
+                        activeFontSize="32px"
+                        fontSize="24px"
+                    />
+                </div>
+            )}
+            <canvas
+                ref={canvasRef}
+                className="w-full h-dvh object-cover block"
+            />
+        </div>
     );
 };
 

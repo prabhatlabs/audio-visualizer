@@ -56,24 +56,26 @@ const PlaybackToggle = () => {
 };
 
 const IslandModal: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    const [activeTab, setActiveTab] = React.useState("player");
+
     return (
         <Dialog>
             <DialogTrigger asChild>{children}</DialogTrigger>
             <DialogContent className="w-[calc(100%-32px)] md:w-full md:max-w-md h-[85vh] flex flex-col overflow-hidden">
                 <Tabs
-                    defaultValue="player"
+                    value={activeTab}
+                    onValueChange={setActiveTab}
                     className="w-full flex-1 flex flex-col min-h-0 gap-0"
                 >
-                    <TabsList className="grid w-full grid-cols-3 shrink-0">
+                    <TabsList className="grid w-full grid-cols-2 shrink-0">
                         <TabsTrigger value="player">Player</TabsTrigger>
                         <TabsTrigger value="search">Search</TabsTrigger>
-                        <TabsTrigger value="favorites">Favorites</TabsTrigger>
                     </TabsList>
                     <TabsContent
                         value="player"
                         className="flex-1 overflow-y-auto pt-4"
                     >
-                        <PlayerControl />
+                        <PlayerControl onOpenFavorites={() => setActiveTab("favorites")} />
                     </TabsContent>
                     <TabsContent
                         value="search"
@@ -85,7 +87,7 @@ const IslandModal: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                         value="favorites"
                         className="flex-1 overflow-hidden flex flex-col pt-4"
                     >
-                        <FavoritesList />
+                        <FavoritesList onBack={() => setActiveTab("player")} />
                     </TabsContent>
                 </Tabs>
             </DialogContent>
