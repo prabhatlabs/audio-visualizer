@@ -7,6 +7,7 @@ interface VisualizerSettings {
         enableRotate: boolean;
         enableShake: boolean;
         shakeIntensity: number;
+        kickThreshold: number;
     };
     ripple: {
         enableRipple: boolean;
@@ -37,6 +38,7 @@ const defaultSettings: VisualizerSettings = {
         enableRotate: true,
         enableShake: true,
         shakeIntensity: 10,
+        kickThreshold: 0.8,
     },
     ripple: {
         enableRipple: true,

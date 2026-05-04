@@ -10,8 +10,13 @@ interface CubeVizProps {
 }
 
 const CubeViz: React.FC<CubeVizProps> = ({ audioBands }) => {
-    const { rotationSpeed, enableRotate, enableShake, shakeIntensity } =
-        useSettingsStore((state) => state.settings.cubeViz);
+    const {
+        rotationSpeed,
+        enableRotate,
+        enableShake,
+        shakeIntensity,
+        kickThreshold,
+    } = useSettingsStore((state) => state.settings.cubeViz);
     const { showLyrics } = useSettingsStore((state) => state.settings.youtube);
     const { ytMode } = useAppStore();
     const theme = useColorStore((state) => state.theme);
@@ -22,7 +27,6 @@ const CubeViz: React.FC<CubeVizProps> = ({ audioBands }) => {
     const translateZStateRef = useRef({ z: 112 });
     const lastKickTimeRef = useRef(0);
     const lastFaceIndexRef = useRef(-1);
-    const kickThreshold = 0.6;
     const kickCooldown = 0;
     const colors = colorObj[theme];
 

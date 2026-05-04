@@ -227,6 +227,27 @@ const VisualizerSettings = () => {
                                         }
                                     />
                                 </div>
+                                <div className="space-y-2">
+                                    <div className="flex justify-between">
+                                        <Label>Kick Sensitivity</Label>
+                                        <span className="text-xs text-muted-foreground">
+                                            {(settings.cubeViz.kickThreshold ?? 0.8).toFixed(2)}
+                                        </span>
+                                    </div>
+                                    <Slider
+                                        min={0.1}
+                                        max={2.0}
+                                        step={0.05}
+                                        value={[settings.cubeViz.kickThreshold ?? 0.8]}
+                                        onValueChange={([v]) =>
+                                            updateSetting(
+                                                "cubeViz",
+                                                "kickThreshold",
+                                                v,
+                                            )
+                                        }
+                                    />
+                                </div>
                             </div>
                         )}
 
