@@ -1,20 +1,21 @@
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { formatTime } from "@/lib/time";
+import { cn } from "@/lib/utils";
 import { useAppStore } from "@/store/appStore";
-import { usePlaybackStore } from "@/store/playbackStore";
 import { useFavoritesStore } from "@/store/favoritesStore";
+import { usePlaybackStore } from "@/store/playbackStore";
 import {
+    Heart,
     ListMusic,
     Music,
     Pause,
     Play,
     SkipBack,
     SkipForward,
-    Heart,
 } from "lucide-react";
 import LyricsInlinePanel from "./LyricsInlinePanel";
-import { cn } from "@/lib/utils";
+import { useState } from "react";
 
 interface PlayerControlProps {
     onOpenFavorites: () => void;
@@ -32,6 +33,8 @@ const PlayerControl: React.FC<PlayerControlProps> = ({ onOpenFavorites }) => {
         duration,
     } = usePlaybackStore();
     const { isFavorite, toggleFavorite } = useFavoritesStore();
+
+    const [imageError, setImageError] = useState(false);
 
     const durationSeconds = currentTrack?.timestamp
         ? currentTrack.timestamp
@@ -55,13 +58,17 @@ const PlayerControl: React.FC<PlayerControlProps> = ({ onOpenFavorites }) => {
         <div className="">
             {/* image */}
             <div className="flex justify-center items-center my-6">
-                <div className="aspect-square bg-foreground/20 h-50 w-50 relative">
-                    <Music className="size-25 text-muted-foreground absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+                <div className="aspect-square bg-foreground/20 h-50 w-50 relative overflow-hidden">
+                    {(!currentTrack?.thumbnail || imageError) && (
+                        <Music className="size-25 text-muted-foreground absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+                    )}
                     {currentTrack?.thumbnail && (
                         <img
                             src={`/api/proxy/thumbnail?url=${encodeURIComponent(currentTrack.thumbnail)}`}
                             alt={currentTrack?.title || "No track"}
-                            className="object-cover w-full h-full"
+                            className="object-cover w-full h-full scale-140"
+                            onError={() => setImageError(true)}
+                            onLoad={() => setImageError(false)}
                         />
                     )}
                 </div>

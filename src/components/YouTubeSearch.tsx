@@ -36,7 +36,7 @@ const YouTubeSearch: React.FC = () => {
 
     return (
         <div className="flex-1 flex flex-col min-h-0 space-y-4 outline-none">
-            <div className="flex gap-2 shrink-0">
+            <div className="flex gap-2 shrink-0 pl-1">
                 <Input
                     placeholder="Search for songs, artists..."
                     value={query}
