@@ -2,10 +2,8 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { formatTime } from "@/lib/time";
 import { useAppStore } from "@/store/appStore";
-import { useLyricsStore } from "@/store/lyricsStore";
 import { usePlaybackStore } from "@/store/playbackStore";
 import { Music, Pause, Play, SkipBack, SkipForward } from "lucide-react";
-import { useEffect } from "react";
 import LyricsInlinePanel from "./LyricsInlinePanel";
 
 const PlayerControl: React.FC = () => {
@@ -19,20 +17,6 @@ const PlayerControl: React.FC = () => {
         loaded,
         duration,
     } = usePlaybackStore();
-    const { fetchLyrics } = useLyricsStore();
-
-    useEffect(() => {
-        async function fetchLyricsOnTrackChange() {
-            if (currentTrack) {
-                await fetchLyrics(
-                    currentTrack.videoId,
-                    currentTrack.title,
-                    currentTrack.author,
-                );
-            }
-        }
-        fetchLyricsOnTrackChange();
-    }, [currentTrack, fetchLyrics]);
 
     const durationSeconds = currentTrack?.timestamp
         ? currentTrack.timestamp

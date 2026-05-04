@@ -2,11 +2,13 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAppStore } from "@/store/appStore";
 import { usePlaybackStore } from "@/store/playbackStore";
+import { useLyricsStore } from "@/store/lyricsStore";
 import { Music, Pause, Play } from "lucide-react";
-import React from "react";
+import React, { useEffect } from "react";
 import PlayerControl from "./PlayerControl";
 import { Button } from "./ui/button";
 import YouTubeSearch from "./YouTubeSearch";
+import FavoritesList from "./FavoritesList";
 import YouTubePlayer from "./YouTubePlayer";
 import { formatTime } from "@/lib/time";
 
@@ -62,9 +64,10 @@ const IslandModal: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                     defaultValue="player"
                     className="w-full flex-1 flex flex-col min-h-0 gap-0"
                 >
-                    <TabsList className="grid w-full grid-cols-2 shrink-0">
+                    <TabsList className="grid w-full grid-cols-3 shrink-0">
                         <TabsTrigger value="player">Player</TabsTrigger>
                         <TabsTrigger value="search">Search</TabsTrigger>
+                        <TabsTrigger value="favorites">Favorites</TabsTrigger>
                     </TabsList>
                     <TabsContent
                         value="player"
@@ -78,6 +81,12 @@ const IslandModal: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                     >
                         <YouTubeSearch />
                     </TabsContent>
+                    <TabsContent
+                        value="favorites"
+                        className="flex-1 overflow-hidden flex flex-col pt-4"
+                    >
+                        <FavoritesList />
+                    </TabsContent>
                 </Tabs>
             </DialogContent>
         </Dialog>
@@ -85,6 +94,24 @@ const IslandModal: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 };
 
 const DynamicIsland: React.FC = () => {
+    const { currentTrack } = useAppStore();
+    const { fetchLyrics, clearLyrics } = useLyricsStore();
+
+    useEffect(() => {
+        async function fetchLyricsOnTrackChange() {
+            if (currentTrack) {
+                await fetchLyrics(
+                    currentTrack.videoId,
+                    currentTrack.title,
+                    currentTrack.author,
+                );
+            } else {
+                clearLyrics();
+            }
+        }
+        fetchLyricsOnTrackChange();
+    }, [currentTrack, fetchLyrics, clearLyrics]);
+
     return (
         <div className="fixed z-50 top-4 left-1/2 -translate-x-1/2">
             <IslandModal>
@@ -99,3 +126,4 @@ const DynamicIsland: React.FC = () => {
 };
 
 export default DynamicIsland;
+
