@@ -15,6 +15,10 @@ export default defineConfig({
         target: 'http://localhost:3001',
         changeOrigin: true,
       },
+      '/api/proxy/thumbnail': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+      },
       '/api/lyrica': {
         target: 'https://test-0k.onrender.com',
         changeOrigin: true,

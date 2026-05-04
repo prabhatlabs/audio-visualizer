@@ -59,8 +59,9 @@ const PlayerControl: React.FC<PlayerControlProps> = ({ onOpenFavorites }) => {
                     <Music className="size-25 text-muted-foreground absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
                     {currentTrack?.thumbnail && (
                         <img
-                            src={currentTrack?.thumbnail || ""}
+                            src={`/api/proxy/thumbnail?url=${encodeURIComponent(currentTrack.thumbnail)}`}
                             alt={currentTrack?.title || "No track"}
+                            className="object-cover w-full h-full"
                         />
                     )}
                 </div>

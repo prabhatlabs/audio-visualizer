@@ -25,7 +25,7 @@ const TrackItem: React.FC<TrackItemProps> = ({
             <div className="aspect-square bg-foreground/20 h-14 w-14 rounded-l-md relative">
                 <Music className="size-5 text-muted-foreground absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
                 <img
-                    src={track.thumbnail}
+                    src={`/api/proxy/thumbnail?url=${encodeURIComponent(track.thumbnail)}`}
                     alt={track.title}
                     className="h-14 w-14 aspect-square object-cover rounded-l-md shrink-0"
                 />

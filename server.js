@@ -31,6 +31,27 @@ app.get("/api/search", async (req, res) => {
     }
 });
 
+app.get("/api/proxy/thumbnail", async (req, res) => {
+    const imageUrl = req.query.url;
+    if (!imageUrl) {
+        return res.status(400).json({ error: "Missing image URL" });
+    }
+
+    try {
+        const response = await fetch(imageUrl);
+        if (!response.ok) throw new Error("Failed to fetch image");
+
+        const contentType = response.headers.get("content-type");
+        res.setHeader("Content-Type", contentType || "image/jpeg");
+        
+        const arrayBuffer = await response.arrayBuffer();
+        res.send(Buffer.from(arrayBuffer));
+    } catch (error) {
+        console.error("Proxy error:", error);
+        res.status(500).json({ error: "Failed to proxy image" });
+    }
+});
+
 app.listen(port, () => {
     console.log(`Backend server listening at http://localhost:${port}`);
 });
