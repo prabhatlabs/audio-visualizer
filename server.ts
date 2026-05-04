@@ -91,6 +91,7 @@ Bun.serve({
                     headers: {
                         ...Object.fromEntries(headers),
                         "Content-Type": contentType,
+                        "Cache-Control": "public, max-age=604800, immutable",
                     },
                 });
             }
