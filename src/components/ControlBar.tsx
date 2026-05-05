@@ -231,14 +231,20 @@ const VisualizerSettings = () => {
                                     <div className="flex justify-between">
                                         <Label>Kick Sensitivity</Label>
                                         <span className="text-xs text-muted-foreground">
-                                            {(settings.cubeViz.kickThreshold ?? 0.8).toFixed(2)}
+                                            {(
+                                                settings.cubeViz
+                                                    .kickThreshold ?? 0.8
+                                            ).toFixed(2)}
                                         </span>
                                     </div>
                                     <Slider
                                         min={0.1}
                                         max={2.0}
                                         step={0.05}
-                                        value={[settings.cubeViz.kickThreshold ?? 0.8]}
+                                        value={[
+                                            settings.cubeViz.kickThreshold ??
+                                                0.8,
+                                        ]}
                                         onValueChange={([v]) =>
                                             updateSetting(
                                                 "cubeViz",
@@ -534,7 +540,10 @@ const ControlBar = () => {
                     <ColorThemeSwitcher />
                     <VisualizerSettings />
 
-                    <Separator orientation="vertical" className="h-8 mx-1" />
+                    <Separator
+                        orientation="vertical"
+                        className="data-[orientation=vertical]:h-8 w-1 bg-border"
+                    />
 
                     <CaptureAudioBtn />
                     <span className="text-sm italic text-muted-foreground">

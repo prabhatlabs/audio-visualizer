@@ -26,6 +26,8 @@ const YouTubePlayer: React.FC = () => {
         setLoaded: setBufferLoaded,
         duration,
         setDuration,
+        loop,
+        setLoop,
     } = usePlaybackStore();
 
     // Sync seeking commit from store to player
@@ -55,7 +57,6 @@ const YouTubePlayer: React.FC = () => {
 
     // ── Local UI state (not worth putting in a store) ─────────────────────────
     const [muted, setMuted] = useState(false);
-    const [loop, setLoop] = useState(false);
     const [playbackRate, setPlaybackRate] = useState(1.0);
     const [played, setPlayed] = useState(0);
     const [loaded, setLoaded] = useState(0);

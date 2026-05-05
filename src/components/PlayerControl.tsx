@@ -11,11 +11,12 @@ import {
     Music,
     Pause,
     Play,
+    Repeat,
     SkipBack,
     SkipForward,
 } from "lucide-react";
-import LyricsInlinePanel from "./LyricsInlinePanel";
 import { useState } from "react";
+import LyricsInlinePanel from "./LyricsInlinePanel";
 
 interface PlayerControlProps {
     onOpenFavorites: () => void;
@@ -31,6 +32,8 @@ const PlayerControl: React.FC<PlayerControlProps> = ({ onOpenFavorites }) => {
         setLocalSeek,
         loaded,
         duration,
+        loop,
+        setLoop,
     } = usePlaybackStore();
     const { isFavorite, toggleFavorite } = useFavoritesStore();
 
@@ -62,7 +65,7 @@ const PlayerControl: React.FC<PlayerControlProps> = ({ onOpenFavorites }) => {
                     {(!currentTrack?.thumbnail || imageError) && (
                         <Music className="size-25 text-muted-foreground absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
                     )}
-                    {currentTrack?.thumbnail && (
+                    {currentTrack?.thumbnail && !imageError && (
                         <img
                             src={`/api/proxy/thumbnail?url=${encodeURIComponent(currentTrack.thumbnail)}`}
                             alt={currentTrack?.title || "No track"}
@@ -85,23 +88,21 @@ const PlayerControl: React.FC<PlayerControlProps> = ({ onOpenFavorites }) => {
             </div>
 
             {/* buttons */}
-            <div className="flex justify-between items-center gap-4 mt-4 relative">
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => currentTrack && toggleFavorite(currentTrack)}
-                >
-                    <Heart
-                        className={cn(
-                            "w-5 h-5",
-                            currentTrack && isFavorite(currentTrack.videoId)
-                                ? "fill-red-500 text-red-500"
-                                : "text-muted-foreground",
-                        )}
-                    />
-                </Button>
-
-                <div className="flex items-center gap-4">
+            <div className="mt-4 relative">
+                <div className="flex items-center gap-4 justify-center">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setLoop(!loop)}
+                    >
+                        <Repeat
+                            className={
+                                loop
+                                    ? "text-primary"
+                                    : "text-muted-foreground/50"
+                            }
+                        />
+                    </Button>
                     <Button variant="ghost" size="icon">
                         <SkipBack />
                     </Button>
@@ -116,10 +117,31 @@ const PlayerControl: React.FC<PlayerControlProps> = ({ onOpenFavorites }) => {
                     <Button variant="ghost" size="icon">
                         <SkipForward />
                     </Button>
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() =>
+                            currentTrack && toggleFavorite(currentTrack)
+                        }
+                    >
+                        <Heart
+                            className={cn(
+                                "w-5 h-5",
+                                currentTrack && isFavorite(currentTrack.videoId)
+                                    ? "fill-red-500 text-red-500"
+                                    : "text-muted-foreground",
+                            )}
+                        />
+                    </Button>
                 </div>
 
-                <Button variant="ghost" size="icon" onClick={onOpenFavorites}>
-                    <ListMusic className="w-5 h-5 text-muted-foreground" />
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-0 top-0"
+                    onClick={onOpenFavorites}
+                >
+                    <ListMusic className="text-muted-foreground" />
                 </Button>
             </div>
 

@@ -22,7 +22,7 @@ const CurrentTrackInfo = () => {
                 {(!currentTrack?.thumbnail || imageError) && (
                     <Music className="size-5 text-muted-foreground absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
                 )}
-                {currentTrack?.thumbnail && (
+                {currentTrack?.thumbnail && !imageError && (
                     <img
                         src={`/api/proxy/thumbnail?url=${encodeURIComponent(currentTrack.thumbnail)}`}
                         alt={currentTrack?.title || "No track"}

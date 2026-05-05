@@ -11,6 +11,8 @@ interface PlaybackState {
     setLocalSeek: (seek: number) => void;
     loaded: number;
     setLoaded: (loaded: number) => void;
+    loop: boolean;
+    setLoop: (loop: boolean) => void;
 }
 
 export const usePlaybackStore = create<PlaybackState>((set) => ({
@@ -24,4 +26,6 @@ export const usePlaybackStore = create<PlaybackState>((set) => ({
     setLocalSeek: (seek) => set({ localSeek: seek }),
     loaded: 0,
     setLoaded: (loaded) => set({ loaded }),
+    loop: false,
+    setLoop: (loop) => set({ loop }),
 }));
