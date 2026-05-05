@@ -12,7 +12,7 @@ const ImageBoom: React.FC<ImageBoomProps> = ({ audioBands }) => {
         (state) => state.settings.imageBoom,
     );
     const { showLyrics } = useSettingsStore((state) => state.settings.youtube);
-    const { ytMode } = useAppStore();
+    const { ytMode, currentTrack } = useAppStore();
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const animationRef = useRef<number>(0);
     const lastKickTimeRef = useRef(0);
@@ -38,11 +38,11 @@ const ImageBoom: React.FC<ImageBoomProps> = ({ audioBands }) => {
 
     useEffect(() => {
         const img = new Image();
-        img.src = imageSrc;
+        img.src = `/api/proxy/thumbnail?url=${encodeURIComponent(currentTrack?.thumbnail || "")}`;
         img.onload = () => {
             imageRef.current = img;
         };
-    }, [imageSrc]);
+    }, [currentTrack]);
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -127,7 +127,7 @@ const ImageBoom: React.FC<ImageBoomProps> = ({ audioBands }) => {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
 
                 ctx.globalCompositeOperation = "screen";
-                ctx.filter = `saturate(${currentSaturationRef.current})`;
+                ctx.filter = `saturate(${currentSaturationRef.current}) blur(20px)`;
                 ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight);
             }
 

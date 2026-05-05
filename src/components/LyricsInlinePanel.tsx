@@ -3,6 +3,7 @@ import { useLyricsStore } from "@/store/lyricsStore";
 import { usePlaybackStore } from "@/store/playbackStore";
 import React, { useEffect, useRef, useState } from "react";
 import { Music } from "lucide-react";
+import { useAppStore } from "@/store/appStore";
 
 const LyricsInlinePanel: React.FC<{
     className?: string;
@@ -24,6 +25,7 @@ const LyricsInlinePanel: React.FC<{
     const [currentLineIndex, setCurrentLineIndex] = useState<number | null>(
         null,
     );
+    const { currentTrack } = useAppStore();
     const containerRef = useRef<HTMLDivElement>(null);
     const activeLineRef = useRef<HTMLDivElement>(null);
 
@@ -92,6 +94,7 @@ const LyricsInlinePanel: React.FC<{
                 )}
             {!isLoading &&
                 lyrics &&
+                !oneLineMode &&
                 lyrics.lines.length === 0 &&
                 lyrics.plainLyrics && (
                     <div
@@ -114,7 +117,7 @@ const LyricsInlinePanel: React.FC<{
                         >
                             {(currentLineIndex &&
                                 lyrics?.lines[currentLineIndex]?.text) || (
-                                <Music className={"size-7"} />
+                                <p>{currentTrack?.title || "prabhatlabs"}</p>
                             )}
                         </div>
                     ) : (
