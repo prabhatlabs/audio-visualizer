@@ -1,8 +1,8 @@
+import { useAppStore } from "@/store/appStore";
 import gsap from "gsap";
 import React, { useEffect, useRef } from "react";
 import { colorObj, useColorStore } from "../../store/colorStore";
 import { useSettingsStore } from "../../store/settingsStore";
-import { useAppStore } from "@/store/appStore";
 import LyricsInlinePanel from "../LyricsInlinePanel";
 
 interface CubeVizProps {
@@ -28,7 +28,24 @@ const CubeViz: React.FC<CubeVizProps> = ({ audioBands }) => {
     const lastKickTimeRef = useRef(0);
     const lastFaceIndexRef = useRef(-1);
     const kickCooldown = 0;
-    const colors = colorObj[theme];
+    const colorsRef = useRef(colorObj[theme]);
+
+    useEffect(() => {
+        colorsRef.current = colorObj[theme];
+
+        // Kill any in-flight kick tweens so old-theme colors don't finish animating
+        faceRefs.current.forEach((face) => {
+            if (face) {
+                gsap.killTweensOf(face);
+                // Reset face immediately to neutral
+                gsap.set(face, {
+                    backgroundColor: "var(--secondary)",
+                    boxShadow: "none",
+                    borderColor: "var(--border)",
+                });
+            }
+        });
+    }, [theme]);
 
     useEffect(() => {
         const ctx = gsap.context(() => {
@@ -56,44 +73,51 @@ const CubeViz: React.FC<CubeVizProps> = ({ audioBands }) => {
     useEffect(() => {
         const updateFaces = (z: number) => {
             faceRefs.current.forEach((face, index) => {
-                if (face) {
-                    const transforms = [
-                        `translateZ(${z}px)`,
-                        `rotateY(90deg) translateZ(${z}px)`,
-                        `rotateY(-90deg) translateZ(${z}px)`,
-                        `rotateX(90deg) translateZ(${z}px)`,
-                        `rotateX(-90deg) translateZ(${z}px)`,
-                        `translateZ(-${z}px) rotateY(180deg)`,
-                    ];
-                    face.style.transform = transforms[index];
-                }
+                if (!face) return;
+                const transforms = [
+                    `translateZ(${z}px)`,
+                    `rotateY(90deg) translateZ(${z}px)`,
+                    `rotateY(-90deg) translateZ(${z}px)`,
+                    `rotateX(90deg) translateZ(${z}px)`,
+                    `rotateX(-90deg) translateZ(${z}px)`,
+                    `translateZ(-${z}px) rotateY(180deg)`,
+                ];
+                face.style.transform = transforms[index];
             });
         };
 
         const triggerKickEffect = (faceIndex: number) => {
-            const colorIndex = Math.floor(Math.random() * colors.length);
-            const face = faceRefs.current[faceIndex];
+            const currentColors = colorsRef.current; // always fresh, no stale closure
+            const colorIndex = Math.floor(Math.random() * currentColors.length);
 
-            if (face) {
-                gsap.to(face, {
-                    backgroundColor: colors[colorIndex].main,
-                    boxShadow: `inset 0 0 30px ${colors[colorIndex].glow}80, 0 0 20px ${colors[colorIndex].glow}40`,
-                    borderColor: colors[colorIndex].glow,
-                    duration: 0.1,
-                    ease: "power2.out",
-                    onComplete: () => {
-                        setTimeout(() => {
-                            gsap.to(face, {
-                                backgroundColor: "var(--secondary)",
-                                boxShadow: "none",
-                                borderColor: "var(--border)",
-                                duration: 0.3,
-                                ease: "power2.out",
-                            });
-                        }, 800);
-                    },
-                });
-            }
+            const color = currentColors[colorIndex];
+            if (!color || !color.main || !color.glow) return; // guard
+
+            const face = faceRefs.current[faceIndex];
+            if (!face) return;
+
+            gsap.to(face, {
+                backgroundColor: color.main,
+                boxShadow: [
+                    `0 0 8px 2px ${color.glow}`,
+                    `0 0 25px 8px ${color.glow}cc`,
+                    `0 0 55px 18px ${color.glow}66`,
+                ].join(", "),
+                borderColor: color.main,
+                duration: 0.1,
+                ease: "power2.out",
+                onComplete: () => {
+                    setTimeout(() => {
+                        gsap.to(face, {
+                            backgroundColor: "var(--secondary)",
+                            boxShadow: "none",
+                            borderColor: "var(--border)",
+                            duration: 0.2,
+                            ease: "power2.in",
+                        });
+                    }, 400);
+                },
+            });
         };
 
         const animate = () => {
@@ -153,15 +177,7 @@ const CubeViz: React.FC<CubeVizProps> = ({ audioBands }) => {
                 cancelAnimationFrame(animationRef.current);
             }
         };
-    }, [
-        audioBands,
-        enableShake,
-        shakeIntensity,
-        theme,
-        colors,
-        kickCooldown,
-        kickThreshold,
-    ]);
+    }, [audioBands, enableShake, shakeIntensity, kickCooldown, kickThreshold]);
 
     const isLyricsVisible = ytMode && showLyrics;
 

@@ -68,7 +68,7 @@ interface ColorState {
 export const useColorStore = create<ColorState>()(
     persist(
         (set) => ({
-            theme: "Minimalist",
+            theme: "Cotton Candy",
             setTheme: (theme) => set({ theme }),
         }),
         {
