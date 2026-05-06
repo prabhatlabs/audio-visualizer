@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { Track } from "./appStore";
+import { useAppStore } from "./appStore";
 
 interface FavoritesState {
     favorites: Track[];
@@ -15,13 +16,17 @@ export const useFavoritesStore = create<FavoritesState>()(
         (set, get) => ({
             favorites: [],
             addFavorite: (track) =>
-                set((state) => ({
-                    favorites: [...state.favorites, track],
-                })),
+                set((state) => {
+                    const newFavorites = [track, ...state.favorites];
+                    useAppStore.getState().syncQueueWithTracks(newFavorites);
+                    return { favorites: newFavorites };
+                }),
             removeFavorite: (videoId) =>
-                set((state) => ({
-                    favorites: state.favorites.filter((t) => t.videoId !== videoId),
-                })),
+                set((state) => {
+                    const newFavorites = state.favorites.filter((t) => t.videoId !== videoId);
+                    useAppStore.getState().syncQueueWithTracks(newFavorites);
+                    return { favorites: newFavorites };
+                }),
             isFavorite: (videoId) =>
                 get().favorites.some((t) => t.videoId === videoId),
             toggleFavorite: (track) => {

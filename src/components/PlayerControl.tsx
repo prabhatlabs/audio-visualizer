@@ -23,7 +23,7 @@ interface PlayerControlProps {
 }
 
 const PlayerControl: React.FC<PlayerControlProps> = ({ onOpenFavorites }) => {
-    const { playing, togglePlaying, currentTrack } = useAppStore();
+    const { playing, togglePlaying, currentTrack, playNext, playPrev } = useAppStore();
     const {
         currentTime,
         seeking,
@@ -103,7 +103,7 @@ const PlayerControl: React.FC<PlayerControlProps> = ({ onOpenFavorites }) => {
                             }
                         />
                     </Button>
-                    <Button variant="ghost" size="icon">
+                    <Button variant="ghost" size="icon" onClick={playPrev}>
                         <SkipBack />
                     </Button>
                     <Button
@@ -114,7 +114,7 @@ const PlayerControl: React.FC<PlayerControlProps> = ({ onOpenFavorites }) => {
                     >
                         {playing ? <Pause /> : <Play />}
                     </Button>
-                    <Button variant="ghost" size="icon">
+                    <Button variant="ghost" size="icon" onClick={playNext}>
                         <SkipForward />
                     </Button>
                     <Button

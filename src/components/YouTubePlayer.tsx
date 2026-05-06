@@ -16,6 +16,7 @@ const YouTubePlayer: React.FC = () => {
         togglePlaying,
         currentTrack,
         setCurrentTrack,
+        playNext,
     } = useAppStore();
 
     const {
@@ -140,7 +141,11 @@ const YouTubePlayer: React.FC = () => {
     };
 
     const handleEnded = () => {
-        setPlaying(loop);
+        if (loop) {
+            setPlaying(true);
+        } else {
+            playNext();
+        }
     };
 
     const handleLoadUrl = () => {

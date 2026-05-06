@@ -11,6 +11,14 @@ export interface Track {
     author: string;
 }
 
+export interface QueueItem {
+    id: string;
+    track: Track;
+}
+
+let queueItemIdCounter = 0;
+const generateQueueItemId = () => `queue-${Date.now()}-${++queueItemIdCounter}`;
+
 interface AudioCaptureStore {
     visualizersWithLabel: {
         label: string;
@@ -26,9 +34,15 @@ interface AudioCaptureStore {
     currentTrack: Track | null;
     setCurrentTrack: (track: Track | null) => void;
     playTrack: (track: Track) => void;
-    queue: Track[];
+    queue: QueueItem[];
+    setQueue: (queue: QueueItem[]) => void;
     addToQueue: (track: Track) => void;
-    removeFromQueue: (videoId: string) => void;
+    removeFromQueue: (itemId: string) => void;
+    playAll: (tracks: Track[], startIndex?: number) => void;
+    playNext: () => void;
+    playPrev: () => void;
+    currentQueueItemId: string | null;
+    syncQueueWithTracks: (tracks: Track[]) => void;
     searchResults: Track[];
     setSearchResults: (tracks: Track[]) => void;
     playing: boolean;
@@ -58,7 +72,7 @@ export const useAppStore = create<AudioCaptureStore>()(
             ytMode: false,
             toggleYtMode: () => set((state) => {
                 if (state.ytMode) {
-                    return { ytMode: false, currentTrack: null, queue: [], searchResults: [], playing: false };
+                    return { ytMode: false, currentTrack: null, queue: [], searchResults: [], playing: false, currentQueueItemId: null };
                 }
                 return { ytMode: true };
             }),
@@ -66,8 +80,52 @@ export const useAppStore = create<AudioCaptureStore>()(
             setCurrentTrack: (track: Track | null) => set({ currentTrack: track, playing: !!track }),
             playTrack: (track: Track) => set({ currentTrack: track, playing: true }),
             queue: [],
-            addToQueue: (track: Track) => set((state) => ({ queue: [...state.queue, track] })),
-            removeFromQueue: (videoId: string) => set((state) => ({ queue: state.queue.filter(t => t.videoId !== videoId) })),
+            setQueue: (queue: QueueItem[]) => set({ queue }),
+            addToQueue: (track: Track) => set((state) => ({ queue: [...state.queue, { id: generateQueueItemId(), track }] })),
+            removeFromQueue: (itemId: string) => set((state) => ({ queue: state.queue.filter(item => item.id !== itemId) })),
+            playAll: (tracks: Track[], startIndex = 0) => {
+                const queueItems = tracks.map(track => ({ id: generateQueueItemId(), track }));
+                return set({ queue: queueItems, currentTrack: queueItems[startIndex].track, currentQueueItemId: queueItems[startIndex].id, playing: true });
+            },
+            playNext: () => set((state) => {
+                if (state.queue.length === 0 || !state.currentQueueItemId) return state;
+                const currentIndex = state.queue.findIndex(item => item.id === state.currentQueueItemId);
+                const nextIndex = currentIndex + 1;
+                if (nextIndex >= state.queue.length) return { playing: false };
+                return { currentTrack: state.queue[nextIndex].track, currentQueueItemId: state.queue[nextIndex].id, playing: true };
+            }),
+            playPrev: () => set((state) => {
+                if (state.queue.length === 0 || !state.currentQueueItemId) return state;
+                const currentIndex = state.queue.findIndex(item => item.id === state.currentQueueItemId);
+                const prevIndex = currentIndex - 1;
+                if (prevIndex < 0) return state;
+                return { currentTrack: state.queue[prevIndex].track, currentQueueItemId: state.queue[prevIndex].id, playing: true };
+            }),
+            currentQueueItemId: null,
+            syncQueueWithTracks: (tracks: Track[]) => set((state) => {
+                if (state.queue.length === 0) return state;
+                
+                const existingVideoIds = new Set(state.queue.map(item => item.track.videoId));
+                const newQueue = state.queue.filter(item => tracks.some(t => t.videoId === item.track.videoId));
+                
+                const existingIds = new Set(newQueue.map(item => item.track.videoId));
+                const newTracks = tracks.filter(t => !existingIds.has(t.videoId));
+                newTracks.forEach(track => {
+                    newQueue.push({ id: generateQueueItemId(), track });
+                });
+                
+                const trackOrder = new Map(tracks.map((t, i) => [t.videoId, i]));
+                newQueue.sort((a, b) => (trackOrder.get(a.track.videoId) ?? 0) - (trackOrder.get(b.track.videoId) ?? 0));
+                
+                const currentStillExists = newQueue.some(item => item.id === state.currentQueueItemId);
+                
+                return {
+                    queue: newQueue,
+                    currentTrack: currentStillExists ? state.currentTrack : (newQueue.length > 0 ? newQueue[0].track : null),
+                    currentQueueItemId: currentStillExists ? state.currentQueueItemId : (newQueue.length > 0 ? newQueue[0].id : null),
+                    playing: currentStillExists ? state.playing : newQueue.length > 0,
+                };
+            }),
             searchResults: [],
             setSearchResults: (tracks: Track[]) => set({ searchResults: tracks }),
             playing: false,
