@@ -74,8 +74,8 @@ const CenterBox = React.forwardRef<HTMLDivElement, { canvasRef: React.RefObject<
     return (
     <div
       ref={ref}
-      className="absolute top-1/2 left-1/2 w-125 h-40 rounded-xl bg-transparent pointer-events-none"
-      style={{ outline: "10px solid rgb(255,255,255)" }}
+      className="absolute top-1/2 left-1/2 w-125 h-40 rounded-xl bg-transparent pointer-events-none z-10"
+      style={{ outline: "16px solid rgb(255,255,255)" }}
     >
       <div className="absolute bottom-full left-0 w-full pb-3">
         <div className="flex justify-between items-end">
@@ -122,9 +122,11 @@ const ImageBoom: React.FC<ImageBoomProps> = ({ audioBands }) => {
   const imageRef = useRef<HTMLImageElement | null>(null);
   const currentScaleRef = useRef(1);
   const currentSaturationRef = useRef(0.5);
+  const currentVignetteRef = useRef(0.9);
   const particlesRef = useRef<Particle[]>([]);
   const boxRef = useRef<HTMLDivElement>(null);
   const boxCanvasRef = useRef<HTMLCanvasElement>(null);
+  const vignetteOverlayRef = useRef<HTMLDivElement>(null);
   const boxXRef = useRef(0);
   const boxYRef = useRef(0);
   const boxRotateRef = useRef(0);
@@ -203,6 +205,10 @@ const ImageBoom: React.FC<ImageBoomProps> = ({ audioBands }) => {
       currentSaturationRef.current +=
         (clampedSaturation - currentSaturationRef.current) * 0.1;
 
+      const targetVignette = Math.max(0, 0.9 - Math.max(0, bassLevel - bassThreshold) * 1.8);
+      currentVignetteRef.current +=
+        (targetVignette - currentVignetteRef.current) * 0.1;
+
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
 
@@ -232,6 +238,21 @@ const ImageBoom: React.FC<ImageBoomProps> = ({ audioBands }) => {
         ctx.globalCompositeOperation = "screen";
         ctx.filter = `saturate(${currentSaturationRef.current})`;
         ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight);
+      }
+
+      const maxR = Math.sqrt(centerX * centerX + centerY * centerY);
+      const vignette = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, maxR);
+      vignette.addColorStop(0, `rgba(0,0,0,0)`);
+      vignette.addColorStop(0.35, `rgba(0,0,0,${currentVignetteRef.current * 0.4})`);
+      vignette.addColorStop(0.6, `rgba(0,0,0,${currentVignetteRef.current * 0.8})`);
+      vignette.addColorStop(1, `rgba(0,0,0,${currentVignetteRef.current})`);
+      ctx.globalCompositeOperation = "source-over";
+      ctx.filter = "none";
+      ctx.fillStyle = vignette;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      if (vignetteOverlayRef.current) {
+        vignetteOverlayRef.current.style.opacity = String(currentVignetteRef.current);
       }
 
       const targetCount = isBassActive ? BOOSTED_PARTICLE_COUNT : BASE_PARTICLE_COUNT;
@@ -361,6 +382,14 @@ const ImageBoom: React.FC<ImageBoomProps> = ({ audioBands }) => {
   return (
     <div className="relative overflow-hidden">
       <CenterBox ref={boxRef} canvasRef={boxCanvasRef} title={displayTitle} artist={displayArtist} timeStr={timeStr} centerText={centerText} />
+      <div
+        ref={vignetteOverlayRef}
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: "radial-gradient(ellipse at center, transparent 35%, rgba(0,0,0,0.9) 100%)",
+          opacity: 0.9,
+        }}
+      />
       <canvas
         ref={canvasRef}
         className="w-full h-dvh block bg-black object-cover"
