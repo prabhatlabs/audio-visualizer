@@ -39,8 +39,11 @@ const ImageBoom: React.FC<ImageBoomProps> = ({ audioBands }) => {
   const mainTextRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const url = encodeURIComponent(currentTrack?.thumbnail || "")
+    if (!url) return;
+
     const img = new Image();
-    img.src = `/api/proxy/thumbnail?url=${encodeURIComponent(currentTrack?.thumbnail || "")}`;
+    img.src = `/api/proxy/thumbnail?url=${url}`;
     img.onload = () => {
       imageRef.current = img;
     };
