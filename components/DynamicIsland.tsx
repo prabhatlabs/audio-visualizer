@@ -107,11 +107,15 @@ const VolumeSlider = () => {
   );
 };
 
-const IslandModal: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const IslandModal: React.FC<{
+  children: React.ReactNode;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}> = ({ children, open, onOpenChange }) => {
   const [activeTab, setActiveTab] = React.useState("player");
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent
         aria-describedby="Youtube Player"
@@ -151,7 +155,10 @@ const IslandModal: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   );
 };
 
-const DynamicIsland: React.FC = () => {
+const DynamicIsland: React.FC<{
+  islandOpen?: boolean;
+  onIslandOpenChange?: (open: boolean) => void;
+}> = ({ islandOpen, onIslandOpenChange }) => {
   const { currentTrack } = useAppStore();
   const { fetchLyrics, clearLyrics } = useLyricsStore();
 
@@ -172,7 +179,7 @@ const DynamicIsland: React.FC = () => {
 
   return (
     <div className={`flex items-center gap-4`}>
-      <IslandModal>
+      <IslandModal open={islandOpen ?? false} onOpenChange={onIslandOpenChange ?? (() => {})}>
         <Button size={"icon-lg"} variant={"outline"}>
           <MdManageSearch />
         </Button>

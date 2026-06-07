@@ -16,6 +16,7 @@ import {
 } from "@/store/colorStore";
 import { usePlaybackStore } from "@/store/playbackStore";
 import { Laptop, MonitorPlay, Palette, Video } from "lucide-react";
+import { useEffect, useState } from "react";
 import CaptureAudioBtn from "./CaptureAudioBtn";
 import DynamicIsland from "./DynamicIsland";
 import { Button } from "./ui/button";
@@ -139,6 +140,55 @@ const Seeker = () => {
 const ControlBar = ({ cursorIdle }: { cursorIdle?: boolean }) => {
   const { isCapturing } = useAudioCaptureStore();
   const { ytMode } = useAppStore();
+  const [islandOpen, setIslandOpen] = useState(false);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) return;
+
+      switch (e.key) {
+        case "s": {
+          e.preventDefault();
+          setIslandOpen((prev) => !prev);
+          break;
+        }
+        case "ArrowDown":
+        case "ArrowUp": {
+          e.preventDefault();
+          const { currVisualizer, visualizersWithLabel, setCurrVisualizer } =
+            useAppStore.getState();
+          const idx = visualizersWithLabel.findIndex(
+            (v) => v.type === currVisualizer,
+          );
+          const next =
+            e.key === "ArrowDown"
+              ? (idx + 1) % visualizersWithLabel.length
+              : (idx - 1 + visualizersWithLabel.length) %
+                visualizersWithLabel.length;
+          setCurrVisualizer(visualizersWithLabel[next].type);
+          break;
+        }
+        case "c": {
+          e.preventDefault();
+          const {
+            isCapturing,
+            cleanup,
+            startTabCapture,
+            startScreenCapture,
+          } = useAudioCaptureStore.getState();
+          const { ytMode } = useAppStore.getState();
+          if (isCapturing) cleanup();
+          else if (ytMode) startTabCapture();
+          else startScreenCapture();
+          break;
+        }
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   return (
     <div
@@ -163,7 +213,7 @@ const ControlBar = ({ cursorIdle }: { cursorIdle?: boolean }) => {
         </div>
         {ytMode && (
           <div className="flex items-center gap-4">
-            <DynamicIsland />
+            <DynamicIsland islandOpen={islandOpen} onIslandOpenChange={setIslandOpen} />
           </div>
         )}
       </div>
