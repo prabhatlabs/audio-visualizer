@@ -106,12 +106,14 @@ const ModeToggle = () => {
   );
 };
 
-const ControlBar = () => {
+const ControlBar = ({ cursorIdle }: { cursorIdle?: boolean }) => {
   const { isCapturing, startTabCapture } = useAudioCaptureStore();
   const { ytMode } = useAppStore();
 
   return (
-    <div className="fixed z-50 bottom-0 w-full p-4 backdrop-blur-xs">
+    <div
+      className={`fixed z-50 bottom-0 w-full p-4 backdrop-blur-xs transition-opacity duration-300 ${cursorIdle ? "opacity-0 pointer-events-none" : "opacity-100"}`}
+    >
       <div className="flex justify-between gap-4 items-center">
         <div className="flex items-center gap-2">
           <ModeToggle />

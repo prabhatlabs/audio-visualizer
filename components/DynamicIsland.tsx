@@ -151,7 +151,7 @@ const IslandModal: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   );
 };
 
-const DynamicIsland: React.FC = () => {
+const DynamicIsland: React.FC<{ cursorIdle?: boolean }> = ({ cursorIdle }) => {
   const { currentTrack } = useAppStore();
   const { fetchLyrics, clearLyrics } = useLyricsStore();
 
@@ -171,7 +171,9 @@ const DynamicIsland: React.FC = () => {
   }, [currentTrack, fetchLyrics, clearLyrics]);
 
   return (
-    <div className="fixed z-50 top-4 left-1/2 -translate-x-1/2">
+    <div
+      className={`fixed z-50 top-4 left-1/2 -translate-x-1/2 transition-opacity duration-300 ${cursorIdle ? "opacity-0 pointer-events-none" : "opacity-100"}`}
+    >
       <IslandModal>
         <div className="flex items-center gap-2 cursor-pointer">
           <PlaybackToggle />
