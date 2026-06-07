@@ -1,5 +1,6 @@
 "use client";
 
+import Duration from "@/components/Duration";
 import React, { useEffect, useRef } from "react";
 import { useSettingsStore } from "@/store/settingsStore";
 import { useAppStore } from "@/store/appStore";
@@ -43,8 +44,8 @@ function createParticle(width: number, height: number): Particle {
   };
 }
 
-const CenterBox = React.forwardRef<HTMLDivElement, { canvasRef: React.RefObject<HTMLCanvasElement | null>; title: string; artist: string; timeStr: string; centerText: string }>(
-  ({ canvasRef, title, artist, timeStr, centerText }, ref) => {
+const CenterBox = React.forwardRef<HTMLDivElement, { canvasRef: React.RefObject<HTMLCanvasElement | null>; title: string; artist: string; seconds: number; centerText: string }>(
+  ({ canvasRef, title, artist, seconds, centerText }, ref) => {
     const textRef = React.useRef<HTMLSpanElement>(null);
     React.useLayoutEffect(() => {
       const el = textRef.current;
@@ -80,10 +81,10 @@ const CenterBox = React.forwardRef<HTMLDivElement, { canvasRef: React.RefObject<
     >
       <div className="absolute bottom-full left-0 w-full pb-3">
         <div className="flex justify-between items-end">
-          <div className="text-xl font-bold text-white">{timeStr}</div>
+          <Duration seconds={seconds} className="text-xl font-bold text-white" />
           <div className="text-right">
-            <div className="text-4xl font-bold text-white truncate max-w-[400px]">{title}</div>
-            <div className="text-2xl font-bold text-white truncate max-w-[400px]">{artist}</div>
+            <div className="text-4xl font-bold text-white truncate max-w-100">{title}</div>
+            <div className="text-2xl font-bold text-white truncate max-w-100">{artist}</div>
           </div>
         </div>
       </div>
@@ -112,7 +113,6 @@ const ImageBoom: React.FC<ImageBoomProps> = ({ audioBands }) => {
   const displayArtist = sep !== -1 ? rawTitle.slice(0, sep) : currentTrack?.author || "";
   const displayTitle = sep !== -1 ? rawTitle.slice(sep + 3) : rawTitle;
   const { currentTime } = usePlaybackStore();
-  const timeStr = `${Math.floor(currentTime / 60)}:${String(Math.floor(currentTime % 60)).padStart(2, "0")}`;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>(0);
   const lastKickTimeRef = useRef(0);
@@ -382,7 +382,7 @@ const ImageBoom: React.FC<ImageBoomProps> = ({ audioBands }) => {
 
   return (
     <div className="relative overflow-hidden">
-      <CenterBox ref={boxRef} canvasRef={boxCanvasRef} title={displayTitle} artist={displayArtist} timeStr={timeStr} centerText={centerText} />
+      <CenterBox ref={boxRef} canvasRef={boxCanvasRef} title={displayTitle} artist={displayArtist} seconds={currentTime} centerText={centerText} />
       <div
         ref={vignetteOverlayRef}
         className="absolute inset-0 pointer-events-none"

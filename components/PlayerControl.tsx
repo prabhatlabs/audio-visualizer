@@ -11,11 +11,12 @@ import {
   Heart,
   ListMusic,
   Music,
+  Pause,
+  Play,
   Repeat,
   SkipBack,
   SkipForward,
 } from "lucide-react";
-import { HiPlay, HiPause } from "react-icons/hi2";
 import { useState } from "react";
 import LyricsInlinePanel from "./LyricsInlinePanel";
 
@@ -102,7 +103,11 @@ const PlayerControl: React.FC<PlayerControlProps> = ({ onOpenFavorites }) => {
             className="rounded-full"
             onClick={togglePlaying}
           >
-            {playing ? <HiPause /> : <HiPlay />}
+            {playing ? (
+              <Pause className="fill-current" />
+            ) : (
+              <Play className="fill-current" />
+            )}
           </Button>
           <Button variant="ghost" size="icon" onClick={playNext}>
             <SkipForward />

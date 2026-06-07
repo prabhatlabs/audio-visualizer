@@ -333,7 +333,7 @@ const InfinitySquaresSettings = () => {
 
 const VisualizerSettings = () => {
   const { currVisualizer } = useAppStore();
-  const { settings, updateSetting, resetSettings } = useSettingsStore();
+  const { resetSettings } = useSettingsStore();
 
   const currentSettingsKey = (currVisualizer.charAt(0).toLowerCase() +
     currVisualizer.slice(1)) as any;
@@ -365,26 +365,6 @@ const VisualizerSettings = () => {
               <InfinitySquaresSettings />
             )}
             {currVisualizer === "LyricsPop" && <LyricsPopSettings />}
-          </div>
-
-          <Separator />
-
-          <div className="grid gap-4">
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <Label>Player Volume</Label>
-                <span className="text-xs text-muted-foreground">
-                  {((settings.youtube?.volume ?? 0.8) * 100).toFixed(0)}%
-                </span>
-              </div>
-              <Slider
-                min={0}
-                max={1}
-                step={0.05}
-                value={[settings.youtube?.volume ?? 0.8]}
-                onValueChange={([v]) => updateSetting("youtube", "volume", v)}
-              />
-            </div>
           </div>
 
           <Separator />

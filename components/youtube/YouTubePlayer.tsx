@@ -158,7 +158,7 @@ const YouTubePlayer: React.FC = () => {
     : undefined;
 
   return (
-    <div className="absolute -translate-y-full p-4 max-w-[800px] mx-auto">
+    <div className="absolute translate-y-[-400dvh] p-4 max-w-200 mx-auto">
       <h2>YouTube Player</h2>
 
       <div className="w-full aspect-video bg-black">

@@ -4,6 +4,7 @@ import { useAppStore } from "@/store/appStore";
 import { colorObj, useColorStore } from "@/store/colorStore";
 import { usePlaybackStore } from "@/store/playbackStore";
 import { useSettingsStore } from "@/store/settingsStore";
+import Duration from "@/components/Duration";
 import gsap from "gsap";
 import React, { useEffect, useRef } from "react";
 import LyricsInlinePanel from "../LyricsInlinePanel";
@@ -184,7 +185,6 @@ const CubeViz: React.FC<CubeVizProps> = ({ audioBands }) => {
     sep !== -1 ? rawTitle.slice(0, sep) : currentTrack?.author || "";
   const displayTitle = sep !== -1 ? rawTitle.slice(sep + 3) : rawTitle;
   const { currentTime } = usePlaybackStore();
-  const timeStr = `${Math.floor(currentTime / 60)}:${String(Math.floor(currentTime % 60)).padStart(2, "0")}`;
 
   return (
     <div className="w-full max-w-7xl mx-auto h-dvh flex items-center justify-center overflow-hidden relative">
@@ -203,9 +203,10 @@ const CubeViz: React.FC<CubeVizProps> = ({ audioBands }) => {
             <div className="text-lg font-bold text-white truncate drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
               {displayArtist}
             </div>
-            <div className="text-lg font-bold text-white/50 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
-              {timeStr}
-            </div>
+            <Duration
+              seconds={currentTime}
+              className="text-lg font-bold text-white/50 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]"
+            />
           </div>
         </div>
       )}

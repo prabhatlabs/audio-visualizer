@@ -14,15 +14,13 @@ import {
   useColorStore,
   type ColorThemeType,
 } from "@/store/colorStore";
-import VisualizerSettings from "./VisualizerSettings";
-import {
-  Laptop,
-  MonitorPlay,
-  Palette,
-  Video,
-} from "lucide-react";
+import { usePlaybackStore } from "@/store/playbackStore";
+import { Laptop, MonitorPlay, Palette, Video } from "lucide-react";
 import CaptureAudioBtn from "./CaptureAudioBtn";
+import DynamicIsland from "./DynamicIsland";
 import { Button } from "./ui/button";
+import { Slider } from "./ui/slider";
+import VisualizerSettings from "./VisualizerSettings";
 
 const VisualizerSwitcher = () => {
   const {
@@ -46,9 +44,7 @@ const VisualizerSwitcher = () => {
           <DropdownMenuItem
             key={viz.type}
             onClick={() => setCurrVisualizer(viz.type)}
-            className={
-              currVisualizer === viz.type ? "bg-accent" : ""
-            }
+            className={currVisualizer === viz.type ? "bg-accent" : ""}
           >
             {viz.label}
           </DropdownMenuItem>
@@ -97,22 +93,56 @@ const ModeToggle = () => {
   return (
     <Button variant="outline" onClick={handleToggle} className="gap-2">
       {ytMode ? (
-                <Video className="w-4 h-4 text-red-500" />
-            ) : (
-                <Laptop className="w-4 h-4" />
-            )}
+        <Video className="w-4 h-4 text-red-500" />
+      ) : (
+        <Laptop className="w-4 h-4" />
+      )}
       {ytMode ? "YT Mode" : "Capture Mode"}
     </Button>
   );
 };
 
+const Seeker = () => {
+  const { currentTrack } = useAppStore();
+  const { currentTime, seeking, setSeeking, localSeek, setLocalSeek } =
+    usePlaybackStore();
+
+  const durationSeconds = currentTrack?.timestamp
+    ? currentTrack.timestamp
+        .split(":")
+        .reduce((acc, time) => 60 * acc + +time, 0)
+    : 0;
+
+  const progress =
+    durationSeconds > 0 ? (currentTime / durationSeconds) * 100 : 0;
+
+  const handleSeekChange = (value: number[]) => {
+    setSeeking(true);
+    setLocalSeek(value[0]);
+  };
+
+  const handleSeekCommit = () => {
+    setSeeking(false);
+  };
+  return (
+    <Slider
+      className="absolute z-50 top-0 left-0 w-full bg-foreground/3 cursor-pointer"
+      value={[seeking ? localSeek : progress]}
+      max={100}
+      step={0.1}
+      onValueChange={handleSeekChange}
+      onValueCommit={handleSeekCommit}
+    />
+  );
+};
+
 const ControlBar = ({ cursorIdle }: { cursorIdle?: boolean }) => {
-  const { isCapturing, startTabCapture } = useAudioCaptureStore();
+  const { isCapturing } = useAudioCaptureStore();
   const { ytMode } = useAppStore();
 
   return (
     <div
-      className={`fixed z-50 bottom-0 w-full p-4 backdrop-blur-xs transition-opacity duration-300 ${cursorIdle ? "opacity-0 pointer-events-none" : "opacity-100"}`}
+      className={`fixed z-50 bottom-0 w-full p-4 backdrop-blur-md bg-background/30 transition-opacity duration-300 ${cursorIdle ? "opacity-0 pointer-events-none" : "opacity-100"}`}
     >
       <div className="flex justify-between gap-4 items-center">
         <div className="flex items-center gap-2">
@@ -128,13 +158,17 @@ const ControlBar = ({ cursorIdle }: { cursorIdle?: boolean }) => {
 
           <CaptureAudioBtn />
           <span className="text-sm italic text-muted-foreground">
-            {isCapturing
-              ? "Capturing Audio"
-              : "Not Capturing Audio"}
+            {isCapturing ? "Capturing Audio" : "Not Capturing Audio"}
           </span>
         </div>
-        <div className="flex items-center gap-2"></div>
+        {ytMode && (
+          <div className="flex items-center gap-4">
+            <DynamicIsland />
+          </div>
+        )}
       </div>
+
+      {ytMode && <Seeker />}
     </div>
   );
 };

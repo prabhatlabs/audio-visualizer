@@ -5,7 +5,7 @@ import { useFavoritesStore } from "@/store/favoritesStore";
 import { Heart, ArrowLeft, Play } from "lucide-react";
 import React from "react";
 import TrackItem from "./TrackItem";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 
 interface FavoritesListProps {
   onBack: () => void;

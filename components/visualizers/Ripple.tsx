@@ -1,5 +1,6 @@
 "use client";
 
+import Duration from "@/components/Duration";
 import { useAppStore } from "@/store/appStore";
 import { colorObj, useColorStore } from "@/store/colorStore";
 import { usePlaybackStore } from "@/store/playbackStore";
@@ -179,7 +180,6 @@ const Ripple: React.FC<RippleProps> = ({ audioBands }) => {
   const displayArtist =
     sep !== -1 ? rawTitle.slice(0, sep) : currentTrack?.author || "";
   const displayTitle = sep !== -1 ? rawTitle.slice(sep + 3) : rawTitle;
-  const timeStr = `${Math.floor(currentTime / 60)}:${String(Math.floor(currentTime % 60)).padStart(2, "0")}`;
 
   return (
     <div className="relative">
@@ -193,9 +193,10 @@ const Ripple: React.FC<RippleProps> = ({ audioBands }) => {
               <div className="text-lg font-bold text-white truncate drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
                 {displayArtist}
               </div>
-              <div className="text-lg font-bold text-white/50 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
-                {timeStr}
-              </div>
+              <Duration
+                seconds={currentTime}
+                className="text-lg font-bold text-white/50 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]"
+              />
             </div>
           </div>
           <LyricsInlinePanel

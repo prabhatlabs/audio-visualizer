@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import type { Track } from "@/store/appStore";
 import { Clock, Heart, Music, User } from "lucide-react";
 import React, { useState } from "react";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 
 interface TrackItemProps {
   track: Track;

@@ -4,7 +4,6 @@ import { AudioAnalysisProvider } from "@/providers/AudioAnalysisProvider";
 import { useAppStore } from "@/store/appStore";
 import { useCallback, useEffect, useRef, useState } from "react";
 import ControlBar from "./ControlBar";
-import DynamicIsland from "./DynamicIsland";
 import VisualizerPage from "./VisualizerPage";
 
 const IDLE_TIMEOUT = 5000;
@@ -12,7 +11,9 @@ const IDLE_TIMEOUT = 5000;
 const App = () => {
   const ytMode = useAppStore((state) => state.ytMode);
   const [cursorIdle, setCursorIdle] = useState(false);
-  const idleTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const idleTimer = useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined,
+  );
 
   const resetIdleTimer = useCallback(() => {
     clearTimeout(idleTimer.current);
@@ -62,7 +63,6 @@ const App = () => {
     <div
       className={`w-dvw h-dvh flex items-center justify-center ${cursorIdle ? "cursor-none" : ""}`}
     >
-      {ytMode && <DynamicIsland cursorIdle={cursorIdle} />}
       <AudioAnalysisProvider noOfBands={40} children={<VisualizerPage />} />
       <ControlBar cursorIdle={cursorIdle} />
     </div>

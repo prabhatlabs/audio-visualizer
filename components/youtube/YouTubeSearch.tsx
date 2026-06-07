@@ -4,8 +4,8 @@ import { useAppStore, type Track } from "@/store/appStore";
 import { useFavoritesStore } from "@/store/favoritesStore";
 import { Loader2, Search } from "lucide-react";
 import React, { useState } from "react";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
 import TrackItem from "./TrackItem";
 
 const YouTubeSearch: React.FC = () => {

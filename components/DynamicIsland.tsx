@@ -12,21 +12,25 @@ import { formatTime } from "@/lib/time";
 import { useAppStore } from "@/store/appStore";
 import { useLyricsStore } from "@/store/lyricsStore";
 import { usePlaybackStore } from "@/store/playbackStore";
+import { useSettingsStore } from "@/store/settingsStore";
 import { Music, Pause, Play } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import FavoritesList from "./FavoritesList";
+import { IoVolumeHigh, IoVolumeOff } from "react-icons/io5";
+import { MdManageSearch } from "react-icons/md";
 import PlayerControl from "./PlayerControl";
 import { Button } from "./ui/button";
-import YouTubePlayer from "./YouTubePlayer";
-import YouTubeSearch from "./YouTubeSearch";
+import { Slider } from "./ui/slider";
+import FavoritesList from "./youtube/FavoritesList";
+import YouTubePlayer from "./youtube/YouTubePlayer";
+import YouTubeSearch from "./youtube/YouTubeSearch";
 
 const CurrentTrackInfo = () => {
   const { currentTrack } = useAppStore();
   const { currentTime } = usePlaybackStore();
   const [imageError, setImageError] = useState(false);
   return (
-    <div className="flex items-center gap-1.5 max-w-60 w-full px-1.5 py-1 bg-background/50 backdrop-blur-xs rounded-full border">
-      <div className="aspect-square bg-foreground/20 size-10 rounded-full relative overflow-hidden shrink-0">
+    <div className="flex items-center gap-2 w-60">
+      <div className="aspect-square bg-foreground/20 size-10 relative overflow-hidden shrink-0">
         {(!currentTrack?.thumbnail || imageError) && (
           <Music className="size-5 text-muted-foreground absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
         )}
@@ -54,58 +58,51 @@ const CurrentTrackInfo = () => {
 
 const PlaybackToggle = () => {
   const { playing, togglePlaying, currentTrack } = useAppStore();
-  const { currentTime, duration } = usePlaybackStore();
-
-  const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
-  const radius = 24;
-  const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = circumference - (progress / 100) * circumference;
-
   return (
-    <div className="relative flex items-center justify-center">
-      <svg
-        className="absolute size-12 -rotate-90 pointer-events-none"
-        viewBox="0 0 56 56"
-      >
-        <circle
-          cx="28"
-          cy="28"
-          r={radius}
-          fill="none"
-          stroke="var(--border)"
-          strokeWidth="2"
-        />
-        <circle
-          cx="28"
-          cy="28"
-          r={radius}
-          fill="none"
-          stroke="var(--foreground)"
-          strokeWidth="2"
-          strokeDasharray={circumference}
-          style={{
-            strokeDashoffset,
-            transition: "stroke-dashoffset 0.5s linear",
-          }}
-        />
-      </svg>
+    <Button
+      disabled={!currentTrack}
+      size="icon-xl"
+      onClick={(e) => {
+        e.stopPropagation();
+        togglePlaying();
+      }}
+      className="rounded-full"
+    >
+      {playing ? (
+        <Pause className="fill-current" />
+      ) : (
+        <Play className="fill-current" />
+      )}
+    </Button>
+  );
+};
 
+const VolumeSlider = () => {
+  const { settings, updateSetting } = useSettingsStore();
+  const handleMute = () => {
+    updateSetting(
+      "youtube",
+      "volume",
+      settings.youtube?.volume === 0 ? 0.6 : 0,
+    );
+  };
+  return (
+    <div className="flex items-center justify-between gap-1 w-30">
       <Button
-        disabled={!currentTrack}
-        variant="outline"
-        size="icon"
-        onClick={(e) => {
-          e.stopPropagation();
-          togglePlaying();
-        }}
-        className="rounded-full w-10 h-10 bg-background/50 dark:bg-background/50 backdrop-blur-xs relative z-10 border-none shadow-none hover:bg-background/80"
+        onClick={handleMute}
+        className="rounded-full"
+        size={"icon-lg"}
+        variant={"ghost"}
       >
-        {playing ? (
-          <Pause className="w-4 h-4 fill-current" />
-        ) : (
-          <Play className="w-4 h-4 fill-current" />
-        )}
+        {settings.youtube?.volume === 0 ? <IoVolumeOff /> : <IoVolumeHigh />}
       </Button>
+      <Slider
+        min={0}
+        max={1}
+        step={0.05}
+        value={[settings.youtube?.volume ?? 0.8]}
+        onValueChange={([v]) => updateSetting("youtube", "volume", v)}
+      />
     </div>
   );
 };
@@ -116,7 +113,10 @@ const IslandModal: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
     <Dialog>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent aria-describedby="Youtube Player" className="w-[calc(100%-32px)] md:w-full md:max-w-md flex flex-col overflow-hidden">
+      <DialogContent
+        aria-describedby="Youtube Player"
+        className="w-[calc(100%-32px)] md:w-full md:max-w-md flex flex-col overflow-hidden"
+      >
         <DialogHeader>
           <DialogTitle>Youtube Player</DialogTitle>
         </DialogHeader>
@@ -151,7 +151,7 @@ const IslandModal: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   );
 };
 
-const DynamicIsland: React.FC<{ cursorIdle?: boolean }> = ({ cursorIdle }) => {
+const DynamicIsland: React.FC = () => {
   const { currentTrack } = useAppStore();
   const { fetchLyrics, clearLyrics } = useLyricsStore();
 
@@ -171,16 +171,18 @@ const DynamicIsland: React.FC<{ cursorIdle?: boolean }> = ({ cursorIdle }) => {
   }, [currentTrack, fetchLyrics, clearLyrics]);
 
   return (
-    <div
-      className={`fixed z-50 top-4 left-1/2 -translate-x-1/2 transition-opacity duration-300 ${cursorIdle ? "opacity-0 pointer-events-none" : "opacity-100"}`}
-    >
+    <div className={`flex items-center gap-4`}>
       <IslandModal>
-        <div className="flex items-center gap-2 cursor-pointer">
-          <PlaybackToggle />
-          <CurrentTrackInfo />
-          <YouTubePlayer />
-        </div>
+        <Button size={"icon-lg"} variant={"outline"}>
+          <MdManageSearch />
+        </Button>
       </IslandModal>
+      <PlaybackToggle />
+      <CurrentTrackInfo />
+      <VolumeSlider />
+
+      {/* hidden component playing audio */}
+      <YouTubePlayer />
     </div>
   );
 };
