@@ -1,5 +1,5 @@
-import yts from "yt-search";
 import { NextRequest } from "next/server";
+import ytSearch from "yt-search";
 
 export async function GET(request: NextRequest) {
   const query = request.nextUrl.searchParams.get("q");
@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const results = await yts(query);
+    const results = await ytSearch(query);
     const videos = results.videos.slice(0, 10).map((video) => {
       const sddefaultImageUrl = video.thumbnail?.replace(
         /\/[^/]+$/,
