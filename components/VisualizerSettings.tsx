@@ -131,15 +131,16 @@ const ImageBoomSettings = () => {
           <Button
             variant="outline"
             size="icon-sm"
-            onClick={() =>
+            onClick={() => {
+              updateSetting("imageBoom", "imageSrc", "");
               updateSetting(
                 "imageBoom",
                 "selectedImage",
                 settings.imageBoom.selectedImage > 0
                   ? settings.imageBoom.selectedImage - 1
                   : 4,
-              )
-            }
+              );
+            }}
           >
             <ChevronLeft />
           </Button>
@@ -149,15 +150,16 @@ const ImageBoomSettings = () => {
           <Button
             variant="outline"
             size="icon-sm"
-            onClick={() =>
+            onClick={() => {
+              updateSetting("imageBoom", "imageSrc", "");
               updateSetting(
                 "imageBoom",
                 "selectedImage",
                 settings.imageBoom.selectedImage < 4
                   ? settings.imageBoom.selectedImage + 1
                   : 0,
-              )
-            }
+              );
+            }}
           >
             <ChevronRight />
           </Button>
