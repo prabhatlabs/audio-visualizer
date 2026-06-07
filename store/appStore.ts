@@ -103,7 +103,6 @@ export const useAppStore = create<AudioCaptureStore>()(
       currentQueueItemId: null,
       syncQueueWithTracks: (tracks: Track[]) => set((state) => {
         if (state.queue.length === 0) return state;
-        const existingVideoIds = new Set(state.queue.map(item => item.track.videoId));
         const newQueue = state.queue.filter(item => tracks.some(t => t.videoId === item.track.videoId));
         const existingIds = new Set(newQueue.map(item => item.track.videoId));
         const newTracks = tracks.filter(t => !existingIds.has(t.videoId));

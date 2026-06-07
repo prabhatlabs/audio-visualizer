@@ -16,6 +16,7 @@ interface VisualizerSettings {
     shakeIntensity: number;
     strobeIntensity: number;
     rippleSpeed: number;
+    kickThreshold: number;
   };
   infinitySquares: {
     squareCount: number;
@@ -48,6 +49,7 @@ const defaultSettings: VisualizerSettings = {
     shakeIntensity: 10,
     strobeIntensity: 0.6,
     rippleSpeed: 1.5,
+    kickThreshold: 0.5,
   },
   infinitySquares: {
     squareCount: 30,
@@ -55,8 +57,8 @@ const defaultSettings: VisualizerSettings = {
     speed: 3,
   },
   imageBoom: {
-    imageSrc: "/image.png",
-    centerText: "labs",
+    imageSrc: "/imageboom/image-1.jpg",
+    centerText: "music",
     selectedImage: 0,
   },
   youtube: {

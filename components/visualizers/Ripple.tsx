@@ -17,26 +17,23 @@ const Ripple: React.FC<RippleProps> = ({ audioBands }) => {
     enableStrobe,
     enableShake,
     shakeIntensity,
-    strobeIntensity,
     rippleSpeed,
+    kickThreshold,
   } = useSettingsStore((state) => state.settings.ripple);
   const { showLyrics } = useSettingsStore((state) => state.settings.youtube);
   const { ytMode, currentTrack } = useAppStore();
   const { currentTime } = usePlaybackStore();
-  const kickThreshold = 0.6;
-  const kickCooldown = 80;
+  const kickCooldown = 0;
   const theme = useColorStore((state) => state.theme);
   const colors = colorObj[theme];
 
   const shakeIntensityRef = useRef(shakeIntensity);
-  const strobeIntensityRef = useRef(strobeIntensity);
   const rippleSpeedRef = useRef(rippleSpeed);
 
   useEffect(() => {
     shakeIntensityRef.current = shakeIntensity;
-    strobeIntensityRef.current = strobeIntensity;
     rippleSpeedRef.current = rippleSpeed;
-  }, [shakeIntensity, strobeIntensity, rippleSpeed]);
+  }, [shakeIntensity, rippleSpeed]);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>(0);
@@ -44,7 +41,7 @@ const Ripple: React.FC<RippleProps> = ({ audioBands }) => {
     { radius: number; color: string; alpha: number; maxRadius: number }[]
   >([]);
   const lastKickTimeRef = useRef(0);
-  const currentColorIndexRef = useRef(0);
+  const strobeRef = useRef({ alpha: 0, color: "" });
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -70,39 +67,44 @@ const Ripple: React.FC<RippleProps> = ({ audioBands }) => {
 
     const triggerKick = () => {
       const colorIndex = Math.floor(Math.random() * colors.length);
-      currentColorIndexRef.current = colorIndex;
+      const color = colors[colorIndex].main;
 
-      ripplesRef.current.push({
-        radius: 0,
-        color: colors[colorIndex].main,
-        alpha: 1,
-        maxRadius: maxDiagonal * 0.8,
-      });
+      if (enableRipple) {
+        ripplesRef.current.push({
+          radius: 0,
+          color,
+          alpha: 1,
+          maxRadius: maxDiagonal,
+        });
+      }
+
+      if (enableStrobe) {
+        strobeRef.current = { alpha: 1, color };
+      }
     };
 
     const animate = () => {
-      let subBassLevel = 0;
+      let bassLevel = 0;
       let kickLevel = 0;
       if (audioBands?.current && audioBands.current.length >= 40) {
         for (let i = 0; i < 7; i++) {
-          subBassLevel += audioBands.current[i];
+          bassLevel += audioBands.current[i];
         }
-        subBassLevel /= 7;
+        bassLevel /= 7;
 
-        for (let i = 4; i < 9; i++) {
+        for (let i = 2; i < 9; i++) {
           kickLevel += audioBands.current[i];
         }
-        kickLevel /= 5;
+        kickLevel /= 7;
       }
 
       const now = Date.now();
       const isKick = kickLevel > kickThreshold;
-      const withinCooldown = now - lastKickTimeRef.current <= kickCooldown;
+      const withinCooldown =
+        kickCooldown > 0 && now - lastKickTimeRef.current <= kickCooldown;
 
       if (isKick && !withinCooldown) {
-        if (enableRipple) {
-          triggerKick();
-        }
+        triggerKick();
         lastKickTimeRef.current = now;
       }
 
@@ -121,12 +123,11 @@ const Ripple: React.FC<RippleProps> = ({ audioBands }) => {
 
       ripplesRef.current = ripplesRef.current.filter((ripple) => {
         ripple.radius +=
-          15 * rippleSpeedRef.current + kickLevel * 20 * rippleSpeedRef.current;
+          (15 + bassLevel * 80) * rippleSpeedRef.current;
         ripple.alpha = Math.max(
           0,
-          1 - (ripple.radius / ripple.maxRadius) * 1.2,
+          1 - ripple.radius / ripple.maxRadius,
         );
-        ripple.alpha *= 0.98;
 
         if (ripple.alpha <= 0.01) return false;
 
@@ -149,10 +150,11 @@ const Ripple: React.FC<RippleProps> = ({ audioBands }) => {
         return true;
       });
 
-      if (enableStrobe && subBassLevel > 0.5) {
-        const strobeColor = colors[currentColorIndexRef.current].main;
-        ctx.fillStyle = strobeColor;
-        ctx.globalAlpha = subBassLevel * strobeIntensityRef.current;
+      if (enableStrobe && strobeRef.current.alpha > 0) {
+        strobeRef.current.alpha = Math.max(0, 1 - (Date.now() - lastKickTimeRef.current) / 600);
+
+        ctx.fillStyle = strobeRef.current.color;
+        ctx.globalAlpha = strobeRef.current.alpha * 0.3;
         ctx.fillRect(0, 0, width, height);
         ctx.globalAlpha = 1;
       }

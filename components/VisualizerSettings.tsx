@@ -245,6 +245,21 @@ const RippleSettings = () => {
           onValueChange={([v]) => updateSetting("ripple", "strobeIntensity", v)}
         />
       </div>
+      <div className="space-y-2">
+        <div className="flex justify-between">
+          <Label>Kick Sensitivity</Label>
+          <span className="text-xs text-muted-foreground">
+            {(settings.ripple.kickThreshold ?? 0.5).toFixed(2)}
+          </span>
+        </div>
+        <Slider
+          min={0.1}
+          max={2.0}
+          step={0.05}
+          value={[settings.ripple.kickThreshold ?? 0.5]}
+          onValueChange={([v]) => updateSetting("ripple", "kickThreshold", v)}
+        />
+      </div>
     </div>
   );
 };
