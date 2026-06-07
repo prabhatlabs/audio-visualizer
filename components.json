@@ -1,29 +1,17 @@
 {
   "$schema": "https://ui.shadcn.com/schema.json",
-<<<<<<< HEAD
-  "style": "new-york",
-  "rsc": false,
-  "tsx": true,
-  "tailwind": {
-    "config": "",
-    "css": "src/index.css",
-=======
   "style": "radix-mira",
   "rsc": true,
   "tsx": true,
   "tailwind": {
     "config": "",
     "css": "app/globals.css",
->>>>>>> 471df53 (reimplement audio-visualizer as Next.js + Tailwind + shadcn app)
     "baseColor": "stone",
     "cssVariables": true,
     "prefix": ""
   },
   "iconLibrary": "lucide",
-<<<<<<< HEAD
-=======
   "rtl": false,
->>>>>>> 471df53 (reimplement audio-visualizer as Next.js + Tailwind + shadcn app)
   "aliases": {
     "components": "@/components",
     "utils": "@/lib/utils",
@@ -31,10 +19,7 @@
     "lib": "@/lib",
     "hooks": "@/hooks"
   },
-<<<<<<< HEAD
-=======
   "menuColor": "default-translucent",
   "menuAccent": "subtle",
->>>>>>> 471df53 (reimplement audio-visualizer as Next.js + Tailwind + shadcn app)
   "registries": {}
 }
