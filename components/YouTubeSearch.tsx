@@ -36,7 +36,7 @@ const YouTubeSearch: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 flex flex-col min-h-0 space-y-4 outline-none">
+    <div className="flex flex-col space-y-4 outline-none h-159">
       <div className="flex gap-2 shrink-0 pl-1">
         <Input
           placeholder="Search for songs, artists..."
@@ -45,11 +45,11 @@ const YouTubeSearch: React.FC = () => {
           onKeyDown={(e) => e.key === "Enter" && handleSearch()}
           className="w-full"
         />
-        <Button onClick={handleSearch} disabled={loading} size="icon">
+        <Button onClick={handleSearch} disabled={loading} size="icon-lg">
           {loading ? (
             <Loader2 className="animate-spin" />
           ) : (
-            <Search className="w-4 h-4" />
+            <Search />
           )}
         </Button>
       </div>

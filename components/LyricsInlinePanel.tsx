@@ -100,7 +100,7 @@ const LyricsInlinePanel: React.FC<{
         lyrics.lines.length === 0 &&
         lyrics.plainLyrics && (
           <div
-            className="whitespace-pre-wrap py-4 px-4 text-foreground/50 leading-relaxed"
+            className="whitespace-pre-wrap p-4 text-foreground/50 leading-relaxed"
             style={{ fontSize }}
           >
             {lyrics.plainLyrics}

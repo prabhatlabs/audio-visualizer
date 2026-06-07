@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "audio-viz",
+  // title: "Audio Visualizer",
   description: "Audio Visualizer",
 };
 

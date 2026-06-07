@@ -26,7 +26,7 @@ const FavoritesList: React.FC<FavoritesListProps> = ({ onBack }) => {
   };
 
   return (
-    <div className="flex flex-col h-full min-h-0">
+    <div className="flex flex-col min-h-0 h-159">
       <div className="flex items-center gap-2 mb-4 shrink-0 px-1">
         <Button variant="ghost" size="icon" onClick={onBack} className="h-8 w-8">
           <ArrowLeft className="w-4 h-4" />

@@ -11,12 +11,11 @@ import {
   Heart,
   ListMusic,
   Music,
-  Pause,
-  Play,
   Repeat,
   SkipBack,
   SkipForward,
 } from "lucide-react";
+import { HiPlay, HiPause } from "react-icons/hi2";
 import { useState } from "react";
 import LyricsInlinePanel from "./LyricsInlinePanel";
 
@@ -25,14 +24,14 @@ interface PlayerControlProps {
 }
 
 const PlayerControl: React.FC<PlayerControlProps> = ({ onOpenFavorites }) => {
-  const { playing, togglePlaying, currentTrack, playNext, playPrev } = useAppStore();
+  const { playing, togglePlaying, currentTrack, playNext, playPrev } =
+    useAppStore();
   const {
     currentTime,
     seeking,
     setSeeking,
     localSeek,
     setLocalSeek,
-    loaded,
     duration,
     loop,
     setLoop,
@@ -89,17 +88,9 @@ const PlayerControl: React.FC<PlayerControlProps> = ({ onOpenFavorites }) => {
 
       <div className="mt-4 relative">
         <div className="flex items-center gap-4 justify-center">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setLoop(!loop)}
-          >
+          <Button variant="ghost" size="icon" onClick={() => setLoop(!loop)}>
             <Repeat
-              className={
-                loop
-                  ? "text-primary"
-                  : "text-muted-foreground/50"
-              }
+              className={loop ? "text-primary" : "text-muted-foreground/50"}
             />
           </Button>
           <Button variant="ghost" size="icon" onClick={playPrev}>
@@ -107,11 +98,11 @@ const PlayerControl: React.FC<PlayerControlProps> = ({ onOpenFavorites }) => {
           </Button>
           <Button
             variant="default"
-            size="icon-lg"
+            size="icon-xl"
             className="rounded-full"
             onClick={togglePlaying}
           >
-            {playing ? <Pause /> : <Play />}
+            {playing ? <HiPause /> : <HiPlay />}
           </Button>
           <Button variant="ghost" size="icon" onClick={playNext}>
             <SkipForward />
@@ -119,9 +110,7 @@ const PlayerControl: React.FC<PlayerControlProps> = ({ onOpenFavorites }) => {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() =>
-              currentTrack && toggleFavorite(currentTrack)
-            }
+            onClick={() => currentTrack && toggleFavorite(currentTrack)}
           >
             <Heart
               className={cn(
@@ -137,7 +126,7 @@ const PlayerControl: React.FC<PlayerControlProps> = ({ onOpenFavorites }) => {
         <Button
           variant="ghost"
           size="icon"
-          className="absolute right-0 top-0"
+          className="absolute right-0 top-1/2 -translate-y-1/2"
           onClick={onOpenFavorites}
         >
           <ListMusic className="text-muted-foreground" />

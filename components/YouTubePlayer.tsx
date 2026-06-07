@@ -31,22 +31,6 @@ const YouTubePlayer: React.FC = () => {
     setLoop,
   } = usePlaybackStore();
 
-  const prevSeekingRef = useRef(seeking);
-  useEffect(() => {
-    if (prevSeekingRef.current && !seeking && playerRef.current) {
-      playerRef.current.currentTime =
-        playerRef.current.duration * (localSeek / 100);
-    }
-    prevSeekingRef.current = seeking;
-  }, [seeking, localSeek]);
-
-  useEffect(() => {
-    if (currentTrack) {
-      setPlayed(0);
-      setLoaded(0);
-      setCurrentTime(0);
-    }
-  }, [currentTrack, setCurrentTime]);
 
   const volume = useSettingsStore((s) => s.settings.youtube.volume);
   const updateSetting = useSettingsStore((s) => s.updateSetting);
@@ -60,6 +44,24 @@ const YouTubePlayer: React.FC = () => {
     if (!player) return;
     playerRef.current = player;
   }, []);
+
+  const prevSeekingRef = useRef(seeking);
+  useEffect(() => {
+    if (prevSeekingRef.current && !seeking && playerRef.current) {
+      playerRef.current.currentTime =
+        playerRef.current.duration * (localSeek / 100);
+    }
+    prevSeekingRef.current = seeking;
+  }, [seeking, localSeek]);
+
+  useEffect(() => {
+    if (currentTrack) {
+      document.title = `${currentTrack?.title || "Audio Visualizer"}`;
+      setPlayed(0);
+      setLoaded(0);
+      setCurrentTime(0);
+    }
+  }, [currentTrack, setCurrentTime]);
 
   const handleStop = () => {
     setCurrentTrack(null);

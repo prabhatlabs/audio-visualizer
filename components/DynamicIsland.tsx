@@ -1,6 +1,12 @@
 "use client";
 
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatTime } from "@/lib/time";
 import { useAppStore } from "@/store/appStore";
@@ -39,8 +45,7 @@ const CurrentTrackInfo = () => {
           {currentTrack?.title || "-"}
         </span>
         <span className="text-[10px] text-muted-foreground">
-          {formatTime(currentTime)} /{" "}
-          {currentTrack?.timestamp || "--:--"}
+          {formatTime(currentTime)} / {currentTrack?.timestamp || "--:--"}
         </span>
       </div>
     </div>
@@ -111,7 +116,11 @@ const IslandModal: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
     <Dialog>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="w-[calc(100%-32px)] md:w-full md:max-w-md h-[85vh] flex flex-col overflow-hidden">
+      <DialogContent className="w-[calc(100%-32px)] md:w-full md:max-w-md flex flex-col overflow-hidden">
+        <DialogHeader>
+          <DialogTitle>Youtube Player</DialogTitle>
+        </DialogHeader>
+
         <Tabs
           value={activeTab}
           onValueChange={setActiveTab}
@@ -121,13 +130,8 @@ const IslandModal: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             <TabsTrigger value="player">Player</TabsTrigger>
             <TabsTrigger value="search">Search</TabsTrigger>
           </TabsList>
-          <TabsContent
-            value="player"
-            className="flex-1 overflow-y-auto pt-4"
-          >
-            <PlayerControl
-              onOpenFavorites={() => setActiveTab("favorites")}
-            />
+          <TabsContent value="player" className="flex-1 overflow-y-auto pt-4">
+            <PlayerControl onOpenFavorites={() => setActiveTab("favorites")} />
           </TabsContent>
           <TabsContent
             value="search"
