@@ -12,6 +12,7 @@ const InfinitySquares = lazy(
   () => import("@/components/visualizers/InfinitySquares"),
 );
 const Ripple = lazy(() => import("@/components/visualizers/Ripple"));
+const LyricsPop = lazy(() => import("@/components/visualizers/LyricsPop"));
 
 function VisualizerPage() {
   const { bandsRef } = useAudioAnalysis();
@@ -40,6 +41,9 @@ function VisualizerPage() {
         )}
         {currVisualizer === "ImageBoom" && (
           <ImageBoom audioBands={bandsRef} />
+        )}
+        {currVisualizer === "LyricsPop" && (
+          <LyricsPop audioBands={bandsRef} />
         )}
       </Suspense>
     </motion.div>

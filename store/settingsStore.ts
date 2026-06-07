@@ -28,6 +28,7 @@ interface VisualizerSettings {
     centerText: string;
     selectedImage: number;
   };
+  lyricsPop: {};
   youtube: {
     volume: number;
     showLyrics: boolean;
@@ -61,6 +62,7 @@ const defaultSettings: VisualizerSettings = {
     centerText: "music",
     selectedImage: 0,
   },
+  lyricsPop: {},
   youtube: {
     volume: 0.8,
     showLyrics: false,

@@ -266,6 +266,14 @@ const RippleSettings = () => {
   );
 };
 
+const LyricsPopSettings = () => {
+  return (
+    <div className="grid gap-4">
+      <p className="text-sm text-muted-foreground">No settings available.</p>
+    </div>
+  );
+};
+
 const InfinitySquaresSettings = () => {
   const { settings, updateSetting } = useSettingsStore();
   return (
@@ -354,6 +362,7 @@ const VisualizerSettings = () => {
             {currVisualizer === "ImageBoom" && <ImageBoomSettings />}
             {currVisualizer === "Ripple" && <RippleSettings />}
             {currVisualizer === "InfinitySquares" && <InfinitySquaresSettings />}
+            {currVisualizer === "LyricsPop" && <LyricsPopSettings />}
           </div>
 
           <Separator />
