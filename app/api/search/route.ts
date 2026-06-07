@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
     const result = (await youtubesearchapi.GetListByKeyword(
       query,
       false,
-      10,
+      20,
       [{ type: "video" }],
     )) as YouTubeSearchResult;
 

@@ -1,10 +1,10 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { useAppStore } from "@/store/appStore";
 import { useLyricsStore } from "@/store/lyricsStore";
 import { usePlaybackStore } from "@/store/playbackStore";
 import React, { useEffect, useRef, useState } from "react";
-import { useAppStore } from "@/store/appStore";
 
 const LyricsInlinePanel: React.FC<{
   className?: string;
@@ -23,9 +23,7 @@ const LyricsInlinePanel: React.FC<{
 }) => {
   const { lyrics, isLoading } = useLyricsStore();
   const { currentTime, setSeeking, setLocalSeek } = usePlaybackStore();
-  const [currentLineIndex, setCurrentLineIndex] = useState<number | null>(
-    null,
-  );
+  const [currentLineIndex, setCurrentLineIndex] = useState<number | null>(null);
   const { currentTrack } = useAppStore();
   const containerRef = useRef<HTMLDivElement>(null);
   const activeLineRef = useRef<HTMLDivElement>(null);
@@ -70,6 +68,12 @@ const LyricsInlinePanel: React.FC<{
     requestAnimationFrame(() => setSeeking(false));
   };
 
+  const rawTitle = currentTrack?.title || "";
+  const sep = rawTitle.indexOf(" - ");
+  const displayArtist =
+    sep !== -1 ? rawTitle.slice(0, sep) : currentTrack?.author || "";
+  const displayTitle = sep !== -1 ? rawTitle.slice(sep + 3) : rawTitle;
+
   return (
     <div
       ref={containerRef}
@@ -87,8 +91,7 @@ const LyricsInlinePanel: React.FC<{
         </div>
       )}
       {!isLoading &&
-        (!lyrics ||
-          (lyrics.lines.length === 0 && !lyrics.plainLyrics)) && (
+        (!lyrics || (lyrics.lines.length === 0 && !lyrics.plainLyrics)) && (
           <div className="p-4 text-sm text-muted-foreground">
             No lyrics found!
           </div>
@@ -116,9 +119,15 @@ const LyricsInlinePanel: React.FC<{
               }}
               className={cn(onelineClassName)}
             >
-              {(currentLineIndex &&
-                lyrics?.lines[currentLineIndex]?.text) || (
-                <p>{currentTrack?.title || "prabhatlabs"}</p>
+              {(currentLineIndex && lyrics?.lines[currentLineIndex]?.text) || (
+                <p className="line-clamp-2 w-full flex flex-col justify-center items-center">
+                  <span className="text-4xl font-bold truncate max-w-100">
+                    {displayTitle}
+                  </span>
+                  <span className="text-2xl font-bold truncate max-w-100">
+                    {displayArtist}
+                  </span>
+                </p>
               )}
             </div>
           ) : (
@@ -129,18 +138,14 @@ const LyricsInlinePanel: React.FC<{
                   <div
                     key={i}
                     ref={isActive ? activeLineRef : null}
-                    onClick={() =>
-                      handleLineClick(line.time)
-                    }
+                    onClick={() => handleLineClick(line.time)}
                     style={{
                       padding: "6px 0",
                       color: isActive
                         ? "var(--foreground)"
                         : "color-mix(in oklab, var(--foreground) 50%, transparent)",
                       fontWeight: isActive ? 700 : 400,
-                      fontSize: isActive
-                        ? activeFontSize
-                        : fontSize,
+                      fontSize: isActive ? activeFontSize : fontSize,
                       opacity: isActive ? 1 : 0.6,
                       transition: "all 0.2s ease",
                       cursor: "pointer",

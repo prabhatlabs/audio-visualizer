@@ -79,17 +79,17 @@ const CenterBox = React.forwardRef<HTMLDivElement, { canvasRef: React.RefObject<
       className="absolute top-1/2 left-1/2 w-125 h-40 rounded-xl bg-transparent pointer-events-none z-10"
       style={{ outline: "16px solid rgb(255,255,255)" }}
     >
-      <div className="absolute bottom-full left-0 w-full pb-3">
+      <div className="absolute bottom-full left-0 w-full pb-4">
         <div className="flex justify-between items-end">
-          <Duration seconds={seconds} className="text-xl font-bold text-white" />
+          <Duration seconds={seconds} className="text-xl font-bold" />
           <div className="text-right">
-            <div className="text-4xl font-bold text-white truncate max-w-100">{title}</div>
-            <div className="text-2xl font-bold text-white truncate max-w-100">{artist}</div>
+            <div className="text-4xl font-bold line-clamp-2">{title}</div>
+            <div className="text-2xl font-bold truncate">{artist}</div>
           </div>
         </div>
       </div>
       <div className="absolute inset-0 flex items-center justify-center">
-        <span ref={textRef} className="text-white font-bold leading-none text-center text-nowrap inline-block">
+        <span ref={textRef} className="font-bold leading-none text-center text-nowrap inline-block">
           {centerText.toUpperCase()}
         </span>
       </div>
