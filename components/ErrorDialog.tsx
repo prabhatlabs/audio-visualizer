@@ -19,7 +19,7 @@ const ErrorDialog = () => {
         <DialogTrigger asChild>
           <Button variant="outline">Open Dialog</Button>
         </DialogTrigger>
-        <DialogContent>
+        <DialogContent aria-describedby="Edit Profile">
           <DialogHeader>
             <DialogTitle>Edit profile</DialogTitle>
             <DialogDescription>

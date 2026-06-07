@@ -19,12 +19,13 @@ interface Particle {
   drift: number;
 }
 
-const PRESET_IMAGES = [
-  '/imageboom/image-1.jpg',
-  '/imageboom/image-2.jpg',
-  '/imageboom/image-3.jpg',
-  '/imageboom/image-4.jpg',
-  '/imageboom/image-5.png',
+export const PRESET_IMAGES = [
+  '/imageboom/image-1.webp',
+  '/imageboom/image-2.webp',
+  '/imageboom/image-3.webp',
+  '/imageboom/image-4.webp',
+  '/imageboom/image-5.webp',
+  '/imageboom/image-6.webp',
 ];
 
 const BASE_PARTICLE_COUNT = 70;

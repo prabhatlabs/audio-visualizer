@@ -58,9 +58,9 @@ const defaultSettings: VisualizerSettings = {
     speed: 3,
   },
   imageBoom: {
-    imageSrc: "/imageboom/image-1.jpg",
+    imageSrc: "/imageboom/image-4.webp",
     centerText: "music",
-    selectedImage: 0,
+    selectedImage: 3,
   },
   lyricsPop: {},
   youtube: {

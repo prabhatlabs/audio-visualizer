@@ -20,6 +20,7 @@ import {
   Upload,
 } from "lucide-react";
 import { Button } from "./ui/button";
+import { PRESET_IMAGES } from "./visualizers/ImageBoom";
 
 const LyricsToggle = () => {
   const { ytMode } = useAppStore();
@@ -123,6 +124,24 @@ const ImageBoomSettings = () => {
     }
   };
 
+  const handleImageSelect = (isIncrement: boolean = false) => {
+    updateSetting("imageBoom", "imageSrc", "");
+    const noImages = PRESET_IMAGES.length;
+    if (isIncrement) {
+      updateSetting(
+        "imageBoom",
+        "selectedImage",
+        (settings.imageBoom.selectedImage + 1) % noImages,
+      );
+    } else {
+      updateSetting(
+        "imageBoom",
+        "selectedImage",
+        (settings.imageBoom.selectedImage - 1 + noImages) % noImages,
+      );
+    }
+  };
+
   return (
     <div className="grid gap-4">
       <div className="space-y-2">
@@ -131,16 +150,7 @@ const ImageBoomSettings = () => {
           <Button
             variant="outline"
             size="icon-sm"
-            onClick={() => {
-              updateSetting("imageBoom", "imageSrc", "");
-              updateSetting(
-                "imageBoom",
-                "selectedImage",
-                settings.imageBoom.selectedImage > 0
-                  ? settings.imageBoom.selectedImage - 1
-                  : 4,
-              );
-            }}
+            onClick={() => handleImageSelect(false)}
           >
             <ChevronLeft />
           </Button>
@@ -150,24 +160,14 @@ const ImageBoomSettings = () => {
           <Button
             variant="outline"
             size="icon-sm"
-            onClick={() => {
-              updateSetting("imageBoom", "imageSrc", "");
-              updateSetting(
-                "imageBoom",
-                "selectedImage",
-                settings.imageBoom.selectedImage < 4
-                  ? settings.imageBoom.selectedImage + 1
-                  : 0,
-              );
-            }}
+            onClick={() => handleImageSelect(true)}
           >
             <ChevronRight />
           </Button>
         </div>
       </div>
       <div className="space-y-2">
-        <Label htmlFor="image-upload" className="flex items-center gap-2">
-          <Upload className="w-4 h-4" />
+        <Label htmlFor="image-upload">
           Custom Image
         </Label>
         <Input
@@ -361,7 +361,9 @@ const VisualizerSettings = () => {
             {currVisualizer === "CubeViz" && <CubeVizSettings />}
             {currVisualizer === "ImageBoom" && <ImageBoomSettings />}
             {currVisualizer === "Ripple" && <RippleSettings />}
-            {currVisualizer === "InfinitySquares" && <InfinitySquaresSettings />}
+            {currVisualizer === "InfinitySquares" && (
+              <InfinitySquaresSettings />
+            )}
             {currVisualizer === "LyricsPop" && <LyricsPopSettings />}
           </div>
 

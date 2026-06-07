@@ -116,7 +116,7 @@ const IslandModal: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
     <Dialog>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="w-[calc(100%-32px)] md:w-full md:max-w-md flex flex-col overflow-hidden">
+      <DialogContent aria-describedby="Youtube Player" className="w-[calc(100%-32px)] md:w-full md:max-w-md flex flex-col overflow-hidden">
         <DialogHeader>
           <DialogTitle>Youtube Player</DialogTitle>
         </DialogHeader>
