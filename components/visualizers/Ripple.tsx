@@ -1,8 +1,10 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import { useAppStore } from "@/store/appStore";
 import { colorObj, useColorStore } from "@/store/colorStore";
+import { usePlaybackStore } from "@/store/playbackStore";
 import { useSettingsStore } from "@/store/settingsStore";
+import React, { useEffect, useRef } from "react";
 import LyricsInlinePanel from "../LyricsInlinePanel";
 
 interface RippleProps {
@@ -19,6 +21,8 @@ const Ripple: React.FC<RippleProps> = ({ audioBands }) => {
     rippleSpeed,
   } = useSettingsStore((state) => state.settings.ripple);
   const { showLyrics } = useSettingsStore((state) => state.settings.youtube);
+  const { ytMode, currentTrack } = useAppStore();
+  const { currentTime } = usePlaybackStore();
   const kickThreshold = 0.6;
   const kickCooldown = 80;
   const theme = useColorStore((state) => state.theme);
@@ -93,8 +97,7 @@ const Ripple: React.FC<RippleProps> = ({ audioBands }) => {
 
       const now = Date.now();
       const isKick = kickLevel > kickThreshold;
-      const withinCooldown =
-        now - lastKickTimeRef.current <= kickCooldown;
+      const withinCooldown = now - lastKickTimeRef.current <= kickCooldown;
 
       if (isKick && !withinCooldown) {
         if (enableRipple) {
@@ -109,14 +112,8 @@ const Ripple: React.FC<RippleProps> = ({ audioBands }) => {
       let shakeX = 0;
       let shakeY = 0;
       if (enableShake) {
-        shakeX =
-          (Math.random() - 0.5) *
-          kickLevel *
-          shakeIntensityRef.current;
-        shakeY =
-          (Math.random() - 0.5) *
-          kickLevel *
-          shakeIntensityRef.current;
+        shakeX = (Math.random() - 0.5) * kickLevel * shakeIntensityRef.current;
+        shakeY = (Math.random() - 0.5) * kickLevel * shakeIntensityRef.current;
       }
 
       const centerX = width / 2 + shakeX;
@@ -124,8 +121,7 @@ const Ripple: React.FC<RippleProps> = ({ audioBands }) => {
 
       ripplesRef.current = ripplesRef.current.filter((ripple) => {
         ripple.radius +=
-          15 * rippleSpeedRef.current +
-          kickLevel * 20 * rippleSpeedRef.current;
+          15 * rippleSpeedRef.current + kickLevel * 20 * rippleSpeedRef.current;
         ripple.alpha = Math.max(
           0,
           1 - (ripple.radius / ripple.maxRadius) * 1.2,
@@ -174,22 +170,41 @@ const Ripple: React.FC<RippleProps> = ({ audioBands }) => {
     };
   }, [audioBands, enableRipple, enableStrobe, enableShake, theme]);
 
+  const isLyricsVisible = ytMode && showLyrics;
+
+  const rawTitle = currentTrack?.title || "";
+  const sep = rawTitle.indexOf(" - ");
+  const displayArtist =
+    sep !== -1 ? rawTitle.slice(0, sep) : currentTrack?.author || "";
+  const displayTitle = sep !== -1 ? rawTitle.slice(sep + 3) : rawTitle;
+  const timeStr = `${Math.floor(currentTime / 60)}:${String(Math.floor(currentTime % 60)).padStart(2, "0")}`;
+
   return (
     <div className="relative">
-      {showLyrics && (
-        <div className="absolute bottom-0 left-0 px-6 mb-10">
+      {isLyricsVisible && (
+        <div className="absolute top-0 left-0 px-12 mt-10">
+          <div className="max-w-sm">
+            <div className="text-2xl font-bold text-white truncate drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+              {displayTitle}
+            </div>
+            <div className="flex gap-4 items-center justify-between">
+              <div className="text-lg font-bold text-white truncate drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                {displayArtist}
+              </div>
+              <div className="text-lg font-bold text-white/50 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                {timeStr}
+              </div>
+            </div>
+          </div>
           <LyricsInlinePanel
-            className="h-[40dvh] py-[15dvh] text-start [mask-image:linear-gradient(to_bottom,transparent_0%,black_60%,black_100%)] px-6"
+            className="h-[30dvh] py-[7dvh] text-start"
             hideScrollbar
             activeFontSize="32px"
             fontSize="24px"
           />
         </div>
       )}
-      <canvas
-        ref={canvasRef}
-        className="w-full h-dvh object-cover block"
-      />
+      <canvas ref={canvasRef} className="w-full h-dvh object-cover block" />
     </div>
   );
 };

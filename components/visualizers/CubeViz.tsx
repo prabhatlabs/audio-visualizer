@@ -189,7 +189,7 @@ const CubeViz: React.FC<CubeVizProps> = ({ audioBands }) => {
   return (
     <div className="w-full max-w-7xl mx-auto h-dvh flex items-center justify-center overflow-hidden relative">
       {isLyricsVisible && (
-        <div className="w-1/2 px-6 flex flex-col justify-center gap-10 self-stretch py-8">
+        <div className="w-1/2 px-6 flex flex-col justify-center gap-14 self-stretch py-8">
           <LyricsInlinePanel
             className="h-[40dvh] py-[15dvh] text-start"
             hideScrollbar
