@@ -25,6 +25,8 @@ import {
 } from "@/store/colorStore";
 import { useSettingsStore } from "@/store/settingsStore";
 import {
+  ChevronLeft,
+  ChevronRight,
   Laptop,
   MonitorPlay,
   Palette,
@@ -233,6 +235,44 @@ const VisualizerSettings = () => {
             {currVisualizer === "ImageBoom" && (
               <div className="grid gap-4">
                 <div className="space-y-2">
+                  <Label>Preset Images</Label>
+                  <div className="flex items-center justify-between gap-1 w-full">
+                    <Button
+                      variant="outline"
+                      size="icon-sm"
+                      onClick={() =>
+                        updateSetting(
+                          "imageBoom",
+                          "selectedImage",
+                          settings.imageBoom.selectedImage > 0
+                            ? settings.imageBoom.selectedImage - 1
+                            : 4,
+                        )
+                      }
+                    >
+                      <ChevronLeft />
+                    </Button>
+                    <span className="text-xs font-medium text-center flex-1">
+                      Image {settings.imageBoom.selectedImage + 1}
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="icon-sm"
+                      onClick={() =>
+                        updateSetting(
+                          "imageBoom",
+                          "selectedImage",
+                          settings.imageBoom.selectedImage < 4
+                            ? settings.imageBoom.selectedImage + 1
+                            : 0,
+                        )
+                      }
+                    >
+                      <ChevronRight />
+                    </Button>
+                  </div>
+                </div>
+                <div className="space-y-2">
                   <Label htmlFor="image-upload" className="flex items-center gap-2">
                     <Upload className="w-4 h-4" />
                     Custom Image
@@ -410,7 +450,7 @@ const VisualizerSettings = () => {
             <RotateCcw className="w-3.5 h-3.5" />
             Reset to Default
           </Button>
-          <LyricsToggle />
+          {currVisualizer !== "ImageBoom" && <LyricsToggle />}
         </div>
       </PopoverContent>
     </Popover>

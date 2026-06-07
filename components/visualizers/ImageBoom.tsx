@@ -3,18 +3,115 @@
 import React, { useEffect, useRef } from "react";
 import { useSettingsStore } from "@/store/settingsStore";
 import { useAppStore } from "@/store/appStore";
-import LyricsInlinePanel from "../LyricsInlinePanel";
+import { usePlaybackStore } from "@/store/playbackStore";
 
 interface ImageBoomProps {
   audioBands?: React.MutableRefObject<Float32Array>;
 }
 
+interface Particle {
+  x: number;
+  y: number;
+  size: number;
+  speedY: number;
+  speedX: number;
+  opacity: number;
+  drift: number;
+}
+
+const PRESET_IMAGES = [
+  '/imageboom/image-1.jpg',
+  '/imageboom/image-2.jpg',
+  '/imageboom/image-3.jpg',
+  '/imageboom/image-4.jpg',
+  '/imageboom/image-5.png',
+];
+
+const BASE_PARTICLE_COUNT = 70;
+const BOOSTED_PARTICLE_COUNT = Math.round(BASE_PARTICLE_COUNT * 1.5);
+
+function createParticle(width: number, height: number): Particle {
+  return {
+    x: Math.random() * width,
+    y: Math.random() * height,
+    size: Math.random() * 2.5 + 1,
+    speedY: Math.random() * 0.5 + 0.3,
+    speedX: (Math.random() - 0.5) * 0.2,
+    opacity: Math.random() * 0.4 + 0.3,
+    drift: Math.random() * Math.PI * 2,
+  };
+}
+
+const CenterBox = React.forwardRef<HTMLDivElement, { canvasRef: React.RefObject<HTMLCanvasElement | null>; title: string; artist: string; timeStr: string; centerText: string }>(
+  ({ canvasRef, title, artist, timeStr, centerText }, ref) => {
+    const textRef = React.useRef<HTMLSpanElement>(null);
+    React.useLayoutEffect(() => {
+      const el = textRef.current;
+      if (!el || !centerText) return;
+      const parent = el.parentElement;
+      if (!parent) return;
+      const maxW = parent.clientWidth;
+      if (maxW === 0) return;
+      const measure = document.createElement("span");
+      measure.textContent = centerText.toUpperCase();
+      const ff = getComputedStyle(el).fontFamily;
+      measure.style.cssText = `font-weight:700;font-family:${ff};white-space:nowrap;visibility:hidden;position:absolute;font-size:100px`;
+      document.body.appendChild(measure);
+      let lo = 4, hi = 200, best = 4;
+      while (lo <= hi) {
+        const mid = Math.floor((lo + hi) / 2);
+        measure.style.fontSize = `${mid}px`;
+        if (measure.offsetWidth <= maxW) {
+          best = mid;
+          lo = mid + 1;
+        } else {
+          hi = mid - 1;
+        }
+      }
+      el.style.fontSize = `${best}px`;
+      document.body.removeChild(measure);
+    }, [centerText]);
+    return (
+    <div
+      ref={ref}
+      className="absolute top-1/2 left-1/2 w-125 h-40 rounded-xl bg-transparent pointer-events-none"
+      style={{ outline: "10px solid rgb(255,255,255)" }}
+    >
+      <div className="absolute bottom-full left-0 w-full pb-3">
+        <div className="flex justify-between items-end">
+          <div className="text-xl font-bold text-white">{timeStr}</div>
+          <div className="text-right">
+            <div className="text-4xl font-bold text-white truncate max-w-[400px]">{title}</div>
+            <div className="text-2xl font-bold text-white truncate max-w-[400px]">{artist}</div>
+          </div>
+        </div>
+      </div>
+      <div className="absolute inset-0 flex items-center justify-center">
+        <span ref={textRef} className="text-white font-bold leading-none text-center text-nowrap inline-block">
+          {centerText.toUpperCase()}
+        </span>
+      </div>
+      <canvas
+        ref={canvasRef}
+        className="absolute top-full left-0 w-full h-20"
+      />
+    </div>
+  );
+  },
+);
+CenterBox.displayName = "CenterBox";
+
 const ImageBoom: React.FC<ImageBoomProps> = ({ audioBands }) => {
-  const { imageSrc, centerText } = useSettingsStore(
+  const { imageSrc, selectedImage, centerText } = useSettingsStore(
     (state) => state.settings.imageBoom,
   );
-  const { showLyrics } = useSettingsStore((state) => state.settings.youtube);
-  const { ytMode, currentTrack } = useAppStore();
+  const { currentTrack } = useAppStore();
+  const rawTitle = currentTrack?.title || "";
+  const sep = rawTitle.indexOf(" - ");
+  const displayArtist = sep !== -1 ? rawTitle.slice(0, sep) : currentTrack?.author || "";
+  const displayTitle = sep !== -1 ? rawTitle.slice(sep + 3) : rawTitle;
+  const { currentTime } = usePlaybackStore();
+  const timeStr = `${Math.floor(currentTime / 60)}:${String(Math.floor(currentTime % 60)).padStart(2, "0")}`;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>(0);
   const lastKickTimeRef = useRef(0);
@@ -25,29 +122,33 @@ const ImageBoom: React.FC<ImageBoomProps> = ({ audioBands }) => {
   const imageRef = useRef<HTMLImageElement | null>(null);
   const currentScaleRef = useRef(1);
   const currentSaturationRef = useRef(0.5);
-
-  const maxHeight = 240;
-  const currentHeightRef = useRef(maxHeight);
-  const maxSplit = 6;
-  const currentSplitRef = useRef(0);
-  const shakeIntensity = 5;
-
-  const logoRedRef = useRef<HTMLDivElement>(null);
-  const logoGreenRef = useRef<HTMLDivElement>(null);
-  const logoBlueRef = useRef<HTMLDivElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const mainTextRef = useRef<HTMLDivElement>(null);
+  const particlesRef = useRef<Particle[]>([]);
+  const boxRef = useRef<HTMLDivElement>(null);
+  const boxCanvasRef = useRef<HTMLCanvasElement>(null);
+  const boxXRef = useRef(0);
+  const boxYRef = useRef(0);
+  const boxRotateRef = useRef(0);
+  const boxTimeRef = useRef(0);
 
   useEffect(() => {
-    const url = encodeURIComponent(currentTrack?.thumbnail || "")
-    if (!url) return;
+    const particles: Particle[] = [];
+    for (let i = 0; i < BASE_PARTICLE_COUNT; i++) {
+      particles.push(createParticle(window.innerWidth, window.innerHeight));
+    }
+    particlesRef.current = particles;
+  }, []);
+
+  useEffect(() => {
+    const src = imageSrc && imageSrc !== "/image.png"
+      ? imageSrc
+      : PRESET_IMAGES[selectedImage] || PRESET_IMAGES[0];
 
     const img = new Image();
-    img.src = `/api/proxy/thumbnail?url=${url}`;
+    img.src = src;
     img.onload = () => {
       imageRef.current = img;
     };
-  }, [currentTrack]);
+  }, [imageSrc, selectedImage]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -61,10 +162,10 @@ const ImageBoom: React.FC<ImageBoomProps> = ({ audioBands }) => {
       let kickLevel = 0;
 
       if (audioBands?.current && audioBands.current.length >= 40) {
-        for (let i = 0; i < 7; i++) {
+        for (let i = 0; i < 14; i++) {
           bassLevel += audioBands.current[i];
         }
-        bassLevel /= 7;
+        bassLevel /= 14;
 
         for (let i = 2; i < 9; i++) {
           kickLevel += audioBands.current[i];
@@ -88,9 +189,9 @@ const ImageBoom: React.FC<ImageBoomProps> = ({ audioBands }) => {
 
       const baseScale = 1;
       const bassScaleBoost = isBassActive
-        ? (bassLevel - bassThreshold) * 0.3
+        ? (bassLevel - bassThreshold) * 0.15
         : 0;
-      const kickScaleBoost = kickStrength * 0.08;
+      const kickScaleBoost = kickStrength * 0.04;
 
       const targetScale = baseScale + bassScaleBoost + kickScaleBoost;
       currentScaleRef.current +=
@@ -101,9 +202,6 @@ const ImageBoom: React.FC<ImageBoomProps> = ({ audioBands }) => {
       const clampedSaturation = Math.min(targetSaturation, 1);
       currentSaturationRef.current +=
         (clampedSaturation - currentSaturationRef.current) * 0.1;
-
-      currentHeightRef.current = maxHeight - bassLevel * 80;
-      currentSplitRef.current = bassLevel * maxSplit;
 
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
@@ -132,41 +230,110 @@ const ImageBoom: React.FC<ImageBoomProps> = ({ audioBands }) => {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         ctx.globalCompositeOperation = "screen";
-        ctx.filter = `saturate(${currentSaturationRef.current}) blur(20px)`;
+        ctx.filter = `saturate(${currentSaturationRef.current})`;
         ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight);
       }
 
-      if (containerRef.current) {
-        const isLyrics = ytMode && showLyrics;
-        const baseHeight = isLyrics ? 400 : maxHeight;
-        containerRef.current.style.height = `${baseHeight - bassLevel * 80}px`;
+      const targetCount = isBassActive ? BOOSTED_PARTICLE_COUNT : BASE_PARTICLE_COUNT;
+      const particles = particlesRef.current;
+      while (particles.length < targetCount) {
+        particles.push(createParticle(window.innerWidth, window.innerHeight));
       }
-      if (mainTextRef.current) {
-        const shakeX = Math.random() * bassLevel * shakeIntensity;
-        const shakeY = Math.random() * bassLevel * shakeIntensity;
-        mainTextRef.current.style.transform = `translate(${shakeX}px, ${shakeY}px)`;
-        mainTextRef.current.style.setProperty(
-          "--lyric-split",
-          currentSplitRef.current.toFixed(2),
-        );
+      while (particles.length > targetCount) {
+        particles.pop();
       }
 
-      if (
-        logoRedRef.current &&
-        logoGreenRef.current &&
-        logoBlueRef.current
-      ) {
-        const split = currentSplitRef.current;
-        const opacity = split / maxSplit;
+      const bassBoost = bassLevel * 3;
+      for (const p of particlesRef.current) {
+        p.drift += 0.015;
+        p.x += Math.sin(p.drift) * 1.2 + p.speedX;
+        p.y += p.speedY + bassBoost;
+        if (p.y > canvas.height + p.size) {
+          p.y = -p.size;
+          p.x = Math.random() * canvas.width;
+        }
+        if (p.x > canvas.width + p.size) p.x = -p.size;
+        if (p.x < -p.size) p.x = canvas.width + p.size;
+      }
 
-        logoRedRef.current.style.transform = `translate(${-split}px, 0)`;
-        logoRedRef.current.style.opacity = opacity.toString();
+      ctx.globalCompositeOperation = "source-over";
+      ctx.filter = "none";
+      for (const p of particlesRef.current) {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255, 255, 255, ${p.opacity})`;
+        ctx.fill();
+      }
 
-        logoGreenRef.current.style.transform = `translate(0, ${-split}px)`;
-        logoGreenRef.current.style.opacity = opacity.toString();
+      boxTimeRef.current += 0.014;
+      const idleX = Math.sin(boxTimeRef.current) * 9.6;
+      const idleY = Math.sin(boxTimeRef.current * 0.7 + 1) * 6.4;
+      const idleRotate = Math.sin(boxTimeRef.current * 0.5 + 2) * 2.4;
+      boxXRef.current += (idleX - boxXRef.current) * 0.08;
+      boxYRef.current += (idleY - boxYRef.current) * 0.08;
+      boxRotateRef.current += (idleRotate - boxRotateRef.current) * 0.08;
+      if (boxRef.current) {
+        boxRef.current.style.transform = `translate(calc(-50% + ${boxXRef.current}px), calc(-50% + ${boxYRef.current}px)) rotate(${boxRotateRef.current}deg)`;
+      }
 
-        logoBlueRef.current.style.transform = `translate(${split}px, ${split}px)`;
-        logoBlueRef.current.style.opacity = opacity.toString();
+      const boxCanvas = boxCanvasRef.current;
+      if (boxCanvas) {
+        const boxCtx = boxCanvas.getContext("2d");
+        if (boxCtx) {
+          const rect = boxCanvas.getBoundingClientRect();
+          boxCanvas.width = rect.width * window.devicePixelRatio;
+          boxCanvas.height = rect.height * window.devicePixelRatio;
+          boxCtx.scale(window.devicePixelRatio, window.devicePixelRatio);
+
+          const w = rect.width;
+          const h = rect.height;
+
+          boxCtx.clearRect(0, 0, w, h);
+
+          if (audioBands?.current) {
+            const data = audioBands.current;
+            const startBand = 7;
+            const count = data.length - startBand;
+
+            const xs: number[] = [];
+            const ys: number[] = [];
+            for (let i = 0; i < count; i++) {
+              xs.push(10 + ((i + 1) / (count + 1)) * (w - 20));
+              ys.push((data[startBand + i] || 0) * h);
+            }
+
+            boxCtx.beginPath();
+            boxCtx.moveTo(10, 0);
+
+            const midFirst = (10 + xs[0]) / 2;
+            boxCtx.bezierCurveTo(midFirst, 0, midFirst, ys[0], xs[0], ys[0]);
+
+            for (let i = 1; i < count; i++) {
+              const cpX = (xs[i - 1] + xs[i]) / 2;
+              boxCtx.bezierCurveTo(cpX, ys[i - 1], cpX, ys[i], xs[i], ys[i]);
+            }
+
+            const midLast = (xs[count - 1] + w - 10) / 2;
+            boxCtx.bezierCurveTo(midLast, ys[count - 1], midLast, 0, w - 10, 0);
+
+            boxCtx.lineTo(10, 0);
+            boxCtx.closePath();
+            boxCtx.fillStyle = "rgb(255,255,255)";
+            boxCtx.fill();
+
+            boxCtx.beginPath();
+            boxCtx.moveTo(10, 0);
+            boxCtx.bezierCurveTo(midFirst, 0, midFirst, ys[0], xs[0], ys[0]);
+            for (let i = 1; i < count; i++) {
+              const cpX = (xs[i - 1] + xs[i]) / 2;
+              boxCtx.bezierCurveTo(cpX, ys[i - 1], cpX, ys[i], xs[i], ys[i]);
+            }
+            boxCtx.bezierCurveTo(midLast, ys[count - 1], midLast, 0, w - 10, 0);
+            boxCtx.strokeStyle = "rgb(255,255,255)";
+            boxCtx.lineWidth = 2;
+            boxCtx.stroke();
+          }
+        }
       }
 
       animationRef.current = requestAnimationFrame(render);
@@ -189,72 +356,14 @@ const ImageBoom: React.FC<ImageBoomProps> = ({ audioBands }) => {
       }
       window.removeEventListener("resize", handleResize);
     };
-  }, [audioBands, imageSrc, ytMode, showLyrics]);
-
-  const isLyricsVisible = ytMode && showLyrics;
+  }, [audioBands, imageSrc, selectedImage]);
 
   return (
     <div className="relative overflow-hidden">
-      <style>{`
-        .boom-lyrics-effect div {
-          text-shadow: 0 0 20px rgba(255, 255, 255, 0.5),
-                       calc(-1px * var(--lyric-split, 0)) 0px rgba(239, 68, 68, 0.65),
-                       0px calc(-1px * var(--lyric-split, 0)) rgba(34, 197, 94, 0.45),
-                       calc(1px * var(--lyric-split, 0)) calc(1px * var(--lyric-split, 0)) rgba(59, 130, 246, 0.65) !important;
-          letter-spacing: 0.05em;
-        }
-      `}</style>
-      <div
-        ref={containerRef}
-        className="absolute z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-60 inset-0 flex items-center justify-center pointer-events-none backdrop-blur-sm transition-all duration-75 bg-black/5"
-      >
-        <div
-          className="relative text-5xl font-bold tracking-wider font-mono w-full flex justify-center"
-          ref={mainTextRef}
-        >
-          {isLyricsVisible ? (
-            <div className="w-full max-w-4xl pointer-events-auto boom-lyrics-effect">
-              <LyricsInlinePanel
-                className="h-full py-[10dvh]"
-                hideScrollbar
-                fontSize="24px"
-                activeFontSize="40px"
-                oneLineMode={true}
-                onelineClassName={
-                  "flex item-center justify-center"
-                }
-              />
-            </div>
-          ) : (
-            <>
-              <div className="text-foreground/90 drop-shadow-[0_0_20px_rgba(255,255,255,0.5)]">
-                {centerText}
-              </div>
-              <div
-                ref={logoRedRef}
-                className="absolute -z-10 top-0 left-1/2 -translate-x-1/2 text-red-500/65 opacity-0 transition-opacity drop-shadow-[0_0_15px_rgba(239,68,68,0.9)]"
-              >
-                {centerText}
-              </div>
-              <div
-                ref={logoGreenRef}
-                className="absolute -z-10 top-0 left-1/2 -translate-x-1/2 text-green-500/45 opacity-0 transition-opacity drop-shadow-[0_0_15px_rgba(34,197,94,0.9)]"
-              >
-                {centerText}
-              </div>
-              <div
-                ref={logoBlueRef}
-                className="absolute -z-10 top-0 left-1/2 -translate-x-1/2 text-blue-500/65 opacity-0 transition-opacity drop-shadow-[0_0_15px_rgba(59,130,246,0.9)]"
-              >
-                {centerText}
-              </div>
-            </>
-          )}
-        </div>
-      </div>
+      <CenterBox ref={boxRef} canvasRef={boxCanvasRef} title={displayTitle} artist={displayArtist} timeStr={timeStr} centerText={centerText} />
       <canvas
         ref={canvasRef}
-        className="w-full h-dvh block bg-black opacity-50 object-cover"
+        className="w-full h-dvh block bg-black object-cover"
       />
     </div>
   );
