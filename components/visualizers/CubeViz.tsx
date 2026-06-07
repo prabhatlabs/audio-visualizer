@@ -1,10 +1,11 @@
 "use client";
 
 import { useAppStore } from "@/store/appStore";
+import { colorObj, useColorStore } from "@/store/colorStore";
+import { usePlaybackStore } from "@/store/playbackStore";
+import { useSettingsStore } from "@/store/settingsStore";
 import gsap from "gsap";
 import React, { useEffect, useRef } from "react";
-import { colorObj, useColorStore } from "@/store/colorStore";
-import { useSettingsStore } from "@/store/settingsStore";
 import LyricsInlinePanel from "../LyricsInlinePanel";
 
 interface CubeVizProps {
@@ -20,7 +21,7 @@ const CubeViz: React.FC<CubeVizProps> = ({ audioBands }) => {
     kickThreshold,
   } = useSettingsStore((state) => state.settings.cubeViz);
   const { showLyrics } = useSettingsStore((state) => state.settings.youtube);
-  const { ytMode } = useAppStore();
+  const { ytMode, currentTrack } = useAppStore();
   const theme = useColorStore((state) => state.theme);
   const cubeWrapperRef = useRef<HTMLDivElement>(null);
   const cubeRef = useRef<HTMLDivElement>(null);
@@ -141,10 +142,8 @@ const CubeViz: React.FC<CubeVizProps> = ({ audioBands }) => {
       updateFaces(translateZStateRef.current.z);
 
       if (enableShake && cubeWrapperRef.current) {
-        const shakeX =
-          (Math.random() - 0.5) * bassLevel * shakeIntensity;
-        const shakeY =
-          (Math.random() - 0.5) * bassLevel * shakeIntensity;
+        const shakeX = (Math.random() - 0.5) * bassLevel * shakeIntensity;
+        const shakeY = (Math.random() - 0.5) * bassLevel * shakeIntensity;
         cubeWrapperRef.current.style.transform = `translate(${shakeX}px, ${shakeY}px)`;
       } else if (cubeWrapperRef.current) {
         cubeWrapperRef.current.style.transform = "none";
@@ -153,8 +152,7 @@ const CubeViz: React.FC<CubeVizProps> = ({ audioBands }) => {
       const now = Date.now();
       const isKick = kickLevel > kickThreshold;
       const withinCooldown =
-        kickCooldown > 0 &&
-        now - lastKickTimeRef.current <= kickCooldown;
+        kickCooldown > 0 && now - lastKickTimeRef.current <= kickCooldown;
 
       if (isKick && !withinCooldown) {
         let faceIndex = Math.floor(Math.random() * 6);
@@ -180,16 +178,35 @@ const CubeViz: React.FC<CubeVizProps> = ({ audioBands }) => {
 
   const isLyricsVisible = ytMode && showLyrics;
 
+  const rawTitle = currentTrack?.title || "";
+  const sep = rawTitle.indexOf(" - ");
+  const displayArtist =
+    sep !== -1 ? rawTitle.slice(0, sep) : currentTrack?.author || "";
+  const displayTitle = sep !== -1 ? rawTitle.slice(sep + 3) : rawTitle;
+  const { currentTime } = usePlaybackStore();
+  const timeStr = `${Math.floor(currentTime / 60)}:${String(Math.floor(currentTime % 60)).padStart(2, "0")}`;
+
   return (
-    <div className="w-full max-w-7xl mx-auto h-dvh flex items-center justify-center overflow-hidden">
+    <div className="w-full max-w-7xl mx-auto h-dvh flex items-center justify-center overflow-hidden relative">
       {isLyricsVisible && (
-        <div className="w-1/2 px-6">
+        <div className="w-1/2 px-6 flex flex-col justify-center gap-10 self-stretch py-8">
           <LyricsInlinePanel
             className="h-[40dvh] py-[15dvh] text-start"
             hideScrollbar
-            activeFontSize="48px"
             fontSize="40px"
+            activeFontSize="44px"
           />
+          <div>
+            <div className="text-2xl font-bold text-white truncate drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+              {displayTitle}
+            </div>
+            <div className="text-lg font-bold text-white truncate drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+              {displayArtist}
+            </div>
+            <div className="text-lg font-bold text-white/50 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+              {timeStr}
+            </div>
+          </div>
         </div>
       )}
       <div

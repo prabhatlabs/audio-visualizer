@@ -4,7 +4,6 @@ import { cn } from "@/lib/utils";
 import { useLyricsStore } from "@/store/lyricsStore";
 import { usePlaybackStore } from "@/store/playbackStore";
 import React, { useEffect, useRef, useState } from "react";
-import { Music } from "lucide-react";
 import { useAppStore } from "@/store/appStore";
 
 const LyricsInlinePanel: React.FC<{
@@ -19,7 +18,7 @@ const LyricsInlinePanel: React.FC<{
   onelineClassName,
   hideScrollbar = false,
   fontSize = "18px",
-  activeFontSize = "24px",
+  activeFontSize = "22px",
   oneLineMode = false,
 }) => {
   const { lyrics, isLoading } = useLyricsStore();
