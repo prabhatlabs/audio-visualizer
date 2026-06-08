@@ -22,18 +22,41 @@ import {
 import { Button } from "./ui/button";
 import { PRESET_IMAGES } from "./visualizers/ImageBoom";
 
-const LyricsToggle = () => {
-  const { ytMode } = useAppStore();
-  const showLyrics = useSettingsStore((s) => s.settings.youtube.showLyrics);
+const ShowMetaToggle = () => {
+  const { currVisualizer, ytMode } = useAppStore();
+  const settings = useSettingsStore((s) => s.settings);
   const updateSetting = useSettingsStore((s) => s.updateSetting);
 
   if (!ytMode) return null;
 
+  const vizKey = currVisualizer.charAt(0).toLowerCase() + currVisualizer.slice(1) as keyof typeof settings;
+  const showMeta = (settings[vizKey] as { showMeta?: boolean }).showMeta ?? true;
+
   return (
     <Button
       variant="outline"
-      onClick={() => updateSetting("youtube", "showLyrics", !showLyrics)}
-      className="gap-2"
+      onClick={() => updateSetting(vizKey as any, "showMeta", !showMeta)}
+      size={"sm"}
+    >
+      {showMeta ? "Hide Meta" : "Show Meta"}
+    </Button>
+  );
+};
+
+const LyricsToggle = () => {
+  const { currVisualizer, ytMode } = useAppStore();
+  const settings = useSettingsStore((s) => s.settings);
+  const updateSetting = useSettingsStore((s) => s.updateSetting);
+
+  if (!ytMode) return null;
+
+  const vizKey = currVisualizer.charAt(0).toLowerCase() + currVisualizer.slice(1) as keyof typeof settings;
+  const showLyrics = (settings[vizKey] as { showLyrics?: boolean }).showLyrics ?? false;
+
+  return (
+    <Button
+      variant="outline"
+      onClick={() => updateSetting(vizKey as any, "showLyrics", !showLyrics)}
       size={"sm"}
     >
       {showLyrics ? "Hide Lyrics" : "Show Lyrics"}
@@ -317,7 +340,12 @@ const VisualizerSettings = () => {
             <RotateCcw className="w-3.5 h-3.5" />
             Reset to Default
           </Button>
-          {currVisualizer !== "ImageBoom" && <LyricsToggle />}
+          {currVisualizer !== "ImageBoom" && (
+            <div className="grid grid-cols-2 gap-2">
+              <ShowMetaToggle />
+              <LyricsToggle />
+            </div>
+          )}
         </div>
       </PopoverContent>
     </Popover>

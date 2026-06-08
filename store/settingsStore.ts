@@ -8,6 +8,8 @@ interface VisualizerSettings {
     enableShake: boolean;
     shakeIntensity: number;
     kickThreshold: number;
+    showLyrics: boolean;
+    showMeta: boolean;
   };
   ripple: {
     enableRipple: boolean;
@@ -17,16 +19,20 @@ interface VisualizerSettings {
     strobeIntensity: number;
     rippleSpeed: number;
     kickThreshold: number;
+    showLyrics: boolean;
+    showMeta: boolean;
   };
   imageBoom: {
     imageSrc: string;
     centerText: string;
     selectedImage: number;
   };
-  lyricsPop: {};
+  lyricsPop: {
+    showLyrics: boolean;
+    showMeta: boolean;
+  };
   youtube: {
     volume: number;
-    showLyrics: boolean;
   };
 }
 
@@ -37,6 +43,8 @@ const defaultSettings: VisualizerSettings = {
     enableShake: true,
     shakeIntensity: 10,
     kickThreshold: 0.8,
+    showLyrics: true,
+    showMeta: true,
   },
   ripple: {
     enableRipple: true,
@@ -46,16 +54,20 @@ const defaultSettings: VisualizerSettings = {
     strobeIntensity: 0.6,
     rippleSpeed: 1.5,
     kickThreshold: 0.5,
+    showLyrics: true,
+    showMeta: true,
   },
   imageBoom: {
     imageSrc: "/imageboom/image-4.webp",
     centerText: "music",
     selectedImage: 3,
   },
-  lyricsPop: {},
+  lyricsPop: {
+    showLyrics: true,
+    showMeta: true,
+  },
   youtube: {
     volume: 0.8,
-    showLyrics: false,
   },
 };
 

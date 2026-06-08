@@ -20,8 +20,9 @@ const Ripple: React.FC<RippleProps> = ({ audioBands }) => {
     shakeIntensity,
     rippleSpeed,
     kickThreshold,
+    showLyrics,
+    showMeta,
   } = useSettingsStore((state) => state.settings.ripple);
-  const { showLyrics } = useSettingsStore((state) => state.settings.youtube);
   const { ytMode, currentTrack } = useAppStore();
   const { currentTime } = usePlaybackStore();
   const kickCooldown = 0;
@@ -123,12 +124,8 @@ const Ripple: React.FC<RippleProps> = ({ audioBands }) => {
       const centerY = height / 2 + shakeY;
 
       ripplesRef.current = ripplesRef.current.filter((ripple) => {
-        ripple.radius +=
-          (15 + bassLevel * 80) * rippleSpeedRef.current;
-        ripple.alpha = Math.max(
-          0,
-          1 - ripple.radius / ripple.maxRadius,
-        );
+        ripple.radius += (15 + bassLevel * 80) * rippleSpeedRef.current;
+        ripple.alpha = Math.max(0, 1 - ripple.radius / ripple.maxRadius);
 
         if (ripple.alpha <= 0.01) return false;
 
@@ -152,7 +149,10 @@ const Ripple: React.FC<RippleProps> = ({ audioBands }) => {
       });
 
       if (enableStrobe && strobeRef.current.alpha > 0) {
-        strobeRef.current.alpha = Math.max(0, 1 - (Date.now() - lastKickTimeRef.current) / 600);
+        strobeRef.current.alpha = Math.max(
+          0,
+          1 - (Date.now() - lastKickTimeRef.current) / 600,
+        );
 
         ctx.fillStyle = strobeRef.current.color;
         ctx.globalAlpha = strobeRef.current.alpha * 0.3;
@@ -173,7 +173,7 @@ const Ripple: React.FC<RippleProps> = ({ audioBands }) => {
     };
   }, [audioBands, enableRipple, enableStrobe, enableShake, theme]);
 
-  const isLyricsVisible = ytMode && showLyrics;
+  const isSidebarVisible = ytMode && (showLyrics || showMeta);
 
   const rawTitle = currentTrack?.title || "";
   const sep = rawTitle.indexOf(" - ");
@@ -183,28 +183,34 @@ const Ripple: React.FC<RippleProps> = ({ audioBands }) => {
 
   return (
     <div className="relative">
-      {isLyricsVisible && (
+      {isSidebarVisible && (
         <div className="absolute top-0 left-0 px-12 mt-10">
-          <div className="max-w-sm">
-            <div className="text-2xl font-bold text-white truncate drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
-              {displayTitle}
-            </div>
-            <div className="flex gap-4 items-center justify-between">
-              <div className="text-lg font-bold text-white truncate drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+          {showMeta && (
+            <div className={`${showLyrics ? "w-sm" : "w-2xl"}`}>
+              <div
+                className={`${showLyrics ? "text-2xl" : "text-6xl"} font-bold truncate drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]`}
+              >
+                {displayTitle}
+              </div>
+              <div
+                className={`${showLyrics ? "text-lg" : "text-4xl"} font-bold truncate drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]`}
+              >
                 {displayArtist}
               </div>
               <Duration
                 seconds={currentTime}
-                className="text-lg font-bold text-white/50 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]"
+                className={`${showLyrics ? "text-lg" : "text-4xl"} text-foreground/50 font-bold drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]`}
               />
             </div>
-          </div>
-          <LyricsInlinePanel
+          )}
+          {showLyrics && (
+            <LyricsInlinePanel
             className="h-[30dvh] py-[7dvh] text-start"
             hideScrollbar
             activeFontSize="32px"
             fontSize="24px"
-          />
+            />
+          )}
         </div>
       )}
       <canvas ref={canvasRef} className="w-full h-dvh object-cover block" />

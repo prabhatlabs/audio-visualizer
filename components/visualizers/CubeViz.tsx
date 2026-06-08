@@ -20,8 +20,9 @@ const CubeViz: React.FC<CubeVizProps> = ({ audioBands }) => {
     enableShake,
     shakeIntensity,
     kickThreshold,
+    showLyrics,
+    showMeta,
   } = useSettingsStore((state) => state.settings.cubeViz);
-  const { showLyrics } = useSettingsStore((state) => state.settings.youtube);
   const { ytMode, currentTrack } = useAppStore();
   const theme = useColorStore((state) => state.theme);
   const cubeWrapperRef = useRef<HTMLDivElement>(null);
@@ -177,7 +178,7 @@ const CubeViz: React.FC<CubeVizProps> = ({ audioBands }) => {
     };
   }, [audioBands, enableShake, shakeIntensity, kickCooldown, kickThreshold]);
 
-  const isLyricsVisible = ytMode && showLyrics;
+  const isSidebarVisible = ytMode && (showLyrics || showMeta);
 
   const rawTitle = currentTrack?.title || "";
   const sep = rawTitle.indexOf(" - ");
@@ -188,30 +189,34 @@ const CubeViz: React.FC<CubeVizProps> = ({ audioBands }) => {
 
   return (
     <div className="w-full max-w-7xl mx-auto h-dvh flex items-center justify-center overflow-hidden relative">
-      {isLyricsVisible && (
+      {isSidebarVisible && (
         <div className="w-1/2 px-6 flex flex-col justify-center gap-14 self-stretch py-8">
-          <LyricsInlinePanel
-            className="h-[40dvh] py-[15dvh] text-start"
-            hideScrollbar
-            fontSize="40px"
-            activeFontSize="44px"
-          />
-          <div>
-            <div className="text-2xl font-bold text-white truncate drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
-              {displayTitle}
-            </div>
-            <div className="text-lg font-bold text-white truncate drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
-              {displayArtist}
-            </div>
-            <Duration
-              seconds={currentTime}
-              className="text-lg font-bold text-white/50 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]"
+          {showLyrics && (
+            <LyricsInlinePanel
+              className="h-[40dvh] py-[15dvh] text-start"
+              hideScrollbar
+              fontSize="40px"
+              activeFontSize="44px"
             />
-          </div>
+          )}
+          {showMeta && (
+            <div>
+              <div className={`${showLyrics ? "text-2xl" : "text-6xl"} font-bold truncate drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]`}>
+                {displayTitle}
+              </div>
+              <div className={`${showLyrics ? "text-lg" : "text-4xl"} font-bold truncate drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]`}>
+                {displayArtist}
+              </div>
+              <Duration
+                seconds={currentTime}
+                className={`${showLyrics ? "text-lg" : "text-4xl"} text-foreground/50 font-bold drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]`}
+              />
+            </div>
+          )}
         </div>
       )}
       <div
-        className={`${isLyricsVisible ? "w-1/2" : "w-full"} flex items-center justify-center`}
+        className={`${isSidebarVisible ? "w-1/2" : "w-full"} flex items-center justify-center`}
       >
         <div className="w-72 h-72 flex items-center justify-center">
           <div

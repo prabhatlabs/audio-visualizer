@@ -4,6 +4,7 @@ import LyricsInlinePanel from "@/components/LyricsInlinePanel";
 import { useAppStore } from "@/store/appStore";
 import { usePlaybackStore } from "@/store/playbackStore";
 import React, { useEffect, useRef } from "react";
+import { useSettingsStore } from "@/store/settingsStore";
 import Duration from "../Duration";
 
 interface LyricsPopProps {
@@ -13,6 +14,7 @@ interface LyricsPopProps {
 const LyricsPop: React.FC<LyricsPopProps> = ({ audioBands }) => {
   const { currentTrack } = useAppStore();
   const { currentTime } = usePlaybackStore();
+  const { showMeta } = useSettingsStore((state) => state.settings.lyricsPop);
   const rawTitle = currentTrack?.title || "";
   const sep = rawTitle.indexOf(" - ");
   const displayArtist =
@@ -203,8 +205,8 @@ const LyricsPop: React.FC<LyricsPopProps> = ({ audioBands }) => {
         ref={canvasRef}
         className="absolute inset-0 w-full h-full pointer-events-none"
       />
-      <div ref={boxRef} className="absolute top-1/2 left-1/2 w-180 p-8">
-        {displayTitle && (
+      <div ref={boxRef} className="absolute top-1/2 left-1/2 w-[70%] p-8">
+        {showMeta && displayTitle && (
           <div className="mb-4 flex justify-between items-center gap-4 mx-36">
             <Duration seconds={currentTime} className="text-5xl font-bold" />
             <div className="text-right">
