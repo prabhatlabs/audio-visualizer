@@ -8,9 +8,6 @@ import LoaderPage from "@/components/LoaderPage";
 
 const CubeViz = lazy(() => import("@/components/visualizers/CubeViz"));
 const ImageBoom = lazy(() => import("@/components/visualizers/ImageBoom"));
-const InfinitySquares = lazy(
-  () => import("@/components/visualizers/InfinitySquares"),
-);
 const Ripple = lazy(() => import("@/components/visualizers/Ripple"));
 const LyricsPop = lazy(() => import("@/components/visualizers/LyricsPop"));
 
@@ -30,9 +27,6 @@ function VisualizerPage() {
   return (
     <motion.div className="w-dvw h-full flex items-center">
       <Suspense fallback={<LoaderPage />}>
-        {currVisualizer === "InfinitySquares" && (
-          <InfinitySquares audioBands={bandsRef} />
-        )}
         {currVisualizer === "CubeViz" && (
           <CubeViz audioBands={bandsRef} />
         )}

@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-export type VisualizerType = "InfinitySquares" | "CubeViz" | "Ripple" | "ImageBoom" | "LyricsPop";
+export type VisualizerType = "CubeViz" | "Ripple" | "ImageBoom" | "LyricsPop";
 
 export interface Track {
   videoId: string;
@@ -53,8 +53,7 @@ const visualizers = {
   ImageBoom: "Image Boom",
   CubeViz: "3D Cube",
   Ripple: "Beat Ripple",
-  InfinitySquares: "Infinity Squares",
-  LyricsPop: "Lyrics Pop",
+  LyricsPop: "Old Tv",
 };
 
 export const useAppStore = create<AudioCaptureStore>()(

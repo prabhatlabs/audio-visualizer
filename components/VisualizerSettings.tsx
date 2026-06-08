@@ -274,63 +274,6 @@ const LyricsPopSettings = () => {
   );
 };
 
-const InfinitySquaresSettings = () => {
-  const { settings, updateSetting } = useSettingsStore();
-  return (
-    <div className="grid gap-4">
-      <div className="space-y-2">
-        <div className="flex justify-between">
-          <Label>Square Count</Label>
-          <span className="text-xs text-muted-foreground">
-            {settings.infinitySquares.squareCount}
-          </span>
-        </div>
-        <Slider
-          min={10}
-          max={100}
-          step={1}
-          value={[settings.infinitySquares.squareCount]}
-          onValueChange={([v]) =>
-            updateSetting("infinitySquares", "squareCount", v)
-          }
-        />
-      </div>
-      <div className="space-y-2">
-        <div className="flex justify-between">
-          <Label>Base Size</Label>
-          <span className="text-xs text-muted-foreground">
-            {settings.infinitySquares.baseSize}
-          </span>
-        </div>
-        <Slider
-          min={100}
-          max={1000}
-          step={50}
-          value={[settings.infinitySquares.baseSize]}
-          onValueChange={([v]) =>
-            updateSetting("infinitySquares", "baseSize", v)
-          }
-        />
-      </div>
-      <div className="space-y-2">
-        <div className="flex justify-between">
-          <Label>Speed</Label>
-          <span className="text-xs text-muted-foreground">
-            {settings.infinitySquares.speed}
-          </span>
-        </div>
-        <Slider
-          min={1}
-          max={20}
-          step={1}
-          value={[settings.infinitySquares.speed]}
-          onValueChange={([v]) => updateSetting("infinitySquares", "speed", v)}
-        />
-      </div>
-    </div>
-  );
-};
-
 const VisualizerSettings = () => {
   const { currVisualizer } = useAppStore();
   const { resetSettings } = useSettingsStore();
@@ -361,9 +304,6 @@ const VisualizerSettings = () => {
             {currVisualizer === "CubeViz" && <CubeVizSettings />}
             {currVisualizer === "ImageBoom" && <ImageBoomSettings />}
             {currVisualizer === "Ripple" && <RippleSettings />}
-            {currVisualizer === "InfinitySquares" && (
-              <InfinitySquaresSettings />
-            )}
             {currVisualizer === "LyricsPop" && <LyricsPopSettings />}
           </div>
 

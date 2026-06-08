@@ -18,11 +18,6 @@ interface VisualizerSettings {
     rippleSpeed: number;
     kickThreshold: number;
   };
-  infinitySquares: {
-    squareCount: number;
-    baseSize: number;
-    speed: number;
-  };
   imageBoom: {
     imageSrc: string;
     centerText: string;
@@ -51,11 +46,6 @@ const defaultSettings: VisualizerSettings = {
     strobeIntensity: 0.6,
     rippleSpeed: 1.5,
     kickThreshold: 0.5,
-  },
-  infinitySquares: {
-    squareCount: 30,
-    baseSize: 500,
-    speed: 3,
   },
   imageBoom: {
     imageSrc: "/imageboom/image-4.webp",
