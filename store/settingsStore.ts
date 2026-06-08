@@ -30,6 +30,7 @@ interface VisualizerSettings {
   lyricsPop: {
     showLyrics: boolean;
     showMeta: boolean;
+    kickThreshold: number;
   };
   youtube: {
     volume: number;
@@ -65,6 +66,7 @@ const defaultSettings: VisualizerSettings = {
   lyricsPop: {
     showLyrics: true,
     showMeta: true,
+    kickThreshold: 0.6,
   },
   youtube: {
     volume: 0.8,

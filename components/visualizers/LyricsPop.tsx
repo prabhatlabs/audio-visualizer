@@ -12,9 +12,9 @@ interface LyricsPopProps {
 }
 
 const LyricsPop: React.FC<LyricsPopProps> = ({ audioBands }) => {
-  const { currentTrack } = useAppStore();
+  const { currentTrack, ytMode } = useAppStore();
   const { currentTime } = usePlaybackStore();
-  const { showMeta } = useSettingsStore((state) => state.settings.lyricsPop);
+  const { showMeta, kickThreshold } = useSettingsStore((state) => state.settings.lyricsPop);
   const rawTitle = currentTrack?.title || "";
   const sep = rawTitle.indexOf(" - ");
   const displayArtist =
@@ -24,6 +24,7 @@ const LyricsPop: React.FC<LyricsPopProps> = ({ audioBands }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>(0);
   const noiseCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const thumbRef = useRef<HTMLImageElement | null>(null);
   const lastKickTimeRef = useRef(0);
   const currentScaleRef = useRef(1);
   const boxTimeRef = useRef(0);
@@ -37,9 +38,19 @@ const LyricsPop: React.FC<LyricsPopProps> = ({ audioBands }) => {
   const barYPosRef = useRef(0);
   const barStretchRef = useRef(0);
 
-  const kickThreshold = 0.6;
-  const kickCooldown = 200;
+  const kickCooldown = 0;
   const bassThreshold = 0.5;
+
+  useEffect(() => {
+    if (!ytMode || !currentTrack?.thumbnail) {
+      thumbRef.current = null;
+      return;
+    }
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.src = currentTrack.thumbnail;
+    img.onload = () => { thumbRef.current = img; };
+  }, [ytMode, currentTrack?.thumbnail]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -120,6 +131,27 @@ const LyricsPop: React.FC<LyricsPopProps> = ({ audioBands }) => {
 
       const w = canvas.width;
       const h = canvas.height;
+
+      const thumb = thumbRef.current;
+      if (thumb && thumb.complete) {
+        const thumbAspect = thumb.width / thumb.height;
+        const canvasAspect = w / h;
+        let sx, sy, sw, sh;
+        if (thumbAspect > canvasAspect) {
+          sh = thumb.height;
+          sw = sh * canvasAspect;
+          sx = (thumb.width - sw) / 2;
+          sy = 0;
+        } else {
+          sw = thumb.width;
+          sh = sw / canvasAspect;
+          sx = 0;
+          sy = (thumb.height - sh) / 2;
+        }
+        ctx.globalAlpha = 0.4;
+        ctx.drawImage(thumb, sx, sy, sw, sh, 0, 0, w, h);
+        ctx.globalAlpha = 1;
+      }
       const step = 4;
       const cols = Math.ceil(w / step);
       const rows = Math.ceil(h / step);
@@ -147,7 +179,7 @@ const LyricsPop: React.FC<LyricsPopProps> = ({ audioBands }) => {
       noiseCtx.putImageData(imageData, 0, 0);
 
       ctx.imageSmoothingEnabled = false;
-      ctx.globalAlpha = 0.15 + bassLevel * 0.35;
+      ctx.globalAlpha = (0.15 + bassLevel * 0.35) * 0.4;
       ctx.drawImage(noiseCanvasRef.current, 0, 0, w, h);
       ctx.globalAlpha = 1;
 
@@ -204,6 +236,18 @@ const LyricsPop: React.FC<LyricsPopProps> = ({ audioBands }) => {
       <canvas
         ref={canvasRef}
         className="absolute inset-0 w-full h-full pointer-events-none"
+      />
+      <div
+        className="absolute inset-0 pointer-events-none z-20"
+        style={{
+          background: "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px)",
+        }}
+      />
+      <div
+        className="absolute inset-0 pointer-events-none z-20"
+        style={{
+          background: "radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.6) 100%)",
+        }}
       />
       <div ref={boxRef} className="absolute top-1/2 left-1/2 w-[70%] p-8">
         {showMeta && displayTitle && (

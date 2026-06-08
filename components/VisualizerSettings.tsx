@@ -290,9 +290,24 @@ const RippleSettings = () => {
 };
 
 const LyricsPopSettings = () => {
+  const { settings, updateSetting } = useSettingsStore();
   return (
     <div className="grid gap-4">
-      <p className="text-sm text-muted-foreground">No settings available.</p>
+      <div className="space-y-2">
+        <div className="flex justify-between">
+          <Label>Kick Sensitivity</Label>
+          <span className="text-xs text-muted-foreground">
+            {(settings.lyricsPop.kickThreshold ?? 0.6).toFixed(2)}
+          </span>
+        </div>
+        <Slider
+          min={0.1}
+          max={2.0}
+          step={0.05}
+          value={[settings.lyricsPop.kickThreshold ?? 0.6]}
+          onValueChange={([v]) => updateSetting("lyricsPop", "kickThreshold", v)}
+        />
+      </div>
     </div>
   );
 };
