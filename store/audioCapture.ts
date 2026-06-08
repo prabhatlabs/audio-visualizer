@@ -4,6 +4,8 @@ interface AudioCaptureStore {
   isCapturing: boolean;
   error: string | null;
   mediaStream: MediaStream | null;
+  autoTriggered: boolean;
+  setAutoTriggered: (v: boolean) => void;
   startScreenCapture: () => Promise<void>;
   startTabCapture: () => Promise<void>;
   cleanup: () => void;
@@ -13,6 +15,8 @@ export const useAudioCaptureStore = create<AudioCaptureStore>((set, get) => ({
   isCapturing: false,
   error: null,
   mediaStream: null,
+  autoTriggered: false,
+  setAutoTriggered: (v) => set({ autoTriggered: v }),
   startScreenCapture: async () => {
     try {
       get().cleanup();
@@ -69,6 +73,6 @@ export const useAudioCaptureStore = create<AudioCaptureStore>((set, get) => ({
     get()
       .mediaStream?.getTracks()
       .forEach((track) => track.stop());
-    set({ mediaStream: null, isCapturing: false, error: null });
+    set({ mediaStream: null, isCapturing: false, error: null, autoTriggered: false });
   },
 }));

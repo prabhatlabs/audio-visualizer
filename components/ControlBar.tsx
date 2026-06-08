@@ -138,7 +138,7 @@ const Seeker = () => {
 };
 
 const ControlBar = ({ cursorIdle }: { cursorIdle?: boolean }) => {
-  const { isCapturing } = useAudioCaptureStore();
+  const { isCapturing, autoTriggered, error } = useAudioCaptureStore();
   const { ytMode } = useAppStore();
   const [islandOpen, setIslandOpen] = useState(false);
 
@@ -208,7 +208,7 @@ const ControlBar = ({ cursorIdle }: { cursorIdle?: boolean }) => {
 
           <CaptureAudioBtn />
           <span className="text-sm italic text-muted-foreground">
-            {isCapturing ? "Capturing Audio" : "Not Capturing Audio"}
+            {isCapturing ? "Capturing Audio" : autoTriggered ? error || "Capture was denied" : "Not Capturing Audio"}
           </span>
         </div>
         {ytMode && (

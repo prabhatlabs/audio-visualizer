@@ -2,6 +2,7 @@
 
 import { AudioAnalysisProvider } from "@/providers/AudioAnalysisProvider";
 import { useAppStore } from "@/store/appStore";
+import { useAudioCaptureStore } from "@/store/audioCapture";
 import { useCallback, useEffect, useRef, useState } from "react";
 import ControlBar from "./ControlBar";
 import VisualizerPage from "./VisualizerPage";
@@ -10,6 +11,9 @@ const IDLE_TIMEOUT = 5000;
 
 const App = () => {
   const ytMode = useAppStore((state) => state.ytMode);
+  const playing = useAppStore((state) => state.playing);
+  const currentTrack = useAppStore((state) => state.currentTrack);
+  const { isCapturing, autoTriggered, setAutoTriggered, startTabCapture, cleanup } = useAudioCaptureStore();
   const [cursorIdle, setCursorIdle] = useState(false);
   const idleTimer = useRef<ReturnType<typeof setTimeout> | undefined>(
     undefined,
@@ -31,6 +35,19 @@ const App = () => {
       removeEventListener("keydown", resetIdleTimer);
     };
   }, [resetIdleTimer]);
+
+  useEffect(() => {
+    if (!ytMode || !currentTrack) {
+      if (isCapturing) cleanup();
+      setAutoTriggered(false);
+      return;
+    }
+
+    if (playing && !isCapturing && !autoTriggered) {
+      setAutoTriggered(true);
+      startTabCapture();
+    }
+  }, [ytMode, playing, currentTrack, isCapturing, autoTriggered, startTabCapture, cleanup, setAutoTriggered]);
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {

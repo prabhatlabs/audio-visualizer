@@ -5,12 +5,21 @@ import { useAppStore } from "@/store/appStore";
 import { Button } from "./ui/button";
 
 const CaptureAudioBtn = () => {
-  const { startScreenCapture, startTabCapture, isCapturing, cleanup } = useAudioCaptureStore();
+  const { startScreenCapture, startTabCapture, isCapturing, autoTriggered, cleanup } = useAudioCaptureStore();
   const { ytMode } = useAppStore();
-  const handleToggleBtn = () => (isCapturing ? cleanup() : (ytMode ? startTabCapture() : startScreenCapture()));
+  const handleClick = () => {
+    if (isCapturing) {
+      cleanup();
+    } else if (ytMode) {
+      startTabCapture();
+    } else {
+      startScreenCapture();
+    }
+  };
+  const label = isCapturing ? "Stop" : autoTriggered ? "Retry Capture" : "Capture";
   return (
-    <Button variant="outline" className="gap-2" onClick={handleToggleBtn}>
-      {isCapturing ? "Stop" : "Capture"}
+    <Button variant="outline" className="gap-2" onClick={handleClick}>
+      {label}
     </Button>
   );
 };
