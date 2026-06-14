@@ -68,7 +68,7 @@ export const useAppStore = create<AudioCaptureStore>()(
       setCurrVisualizer: (visualizer: VisualizerType) =>
         set({ currVisualizer: visualizer }),
 
-      ytMode: false,
+      ytMode: true,
       toggleYtMode: () => set((state) => {
         if (state.ytMode) {
           return { ytMode: false, currentTrack: null, queue: [], searchResults: [], playing: false, currentQueueItemId: null };

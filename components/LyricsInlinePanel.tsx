@@ -121,10 +121,10 @@ const LyricsInlinePanel: React.FC<{
             >
               {(currentLineIndex && lyrics?.lines[currentLineIndex]?.text) || (
                 <p className="line-clamp-2 w-full flex flex-col justify-center items-center">
-                  <span className="text-4xl font-bold truncate max-w-100">
+                  <span className="text-4xl font-bold truncate">
                     {displayTitle}
                   </span>
-                  <span className="text-2xl font-bold truncate max-w-100">
+                  <span className="text-2xl font-bold truncate">
                     {displayArtist}
                   </span>
                 </p>
