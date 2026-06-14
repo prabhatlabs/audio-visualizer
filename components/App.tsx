@@ -51,7 +51,9 @@ const App = () => {
   }, [resetIdleTimer]);
 
   useEffect(() => {
-    if (!ytMode || !currentTrack) {
+    if (!ytMode) return;
+
+    if (!currentTrack) {
       if (isCapturing) cleanup();
       setAutoTriggered(false);
       return;
